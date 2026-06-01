@@ -4,6 +4,7 @@ class ServiceModel {
   final int duration; // in minutes
   final double price;
   final String description;
+  final List<String>? subServices; // for bundle packages
 
   ServiceModel({
     required this.id,
@@ -11,6 +12,7 @@ class ServiceModel {
     required this.duration,
     required this.price,
     required this.description,
+    this.subServices,
   });
 
   factory ServiceModel.fromMap(Map<String, dynamic> data) {
