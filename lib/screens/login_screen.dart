@@ -46,19 +46,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
     
-    // Check credentials via authService
-    final user = await authService.loginWithEmailAndPassword(email, password);
-    
-    setState(() => _isLoading = false);
-
-    if (user != null && mounted) {
-      if (user.role == 'barber') {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BarberMainScreen()));
+    try {
+      final user = await authService.loginWithEmailAndPassword(email, password);
+      
+      if (user != null) {
+        debugPrint('--- Login Success ---');
+        debugPrint('UID: \${user.uid}');
+        debugPrint('Email: \${user.email}');
+        debugPrint('Role: \${user.role}');
+        debugPrint('Firestore User Exists: true');
+        
+        if (mounted) {
+          if (user.role == 'barber') {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BarberMainScreen()));
+          } else {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+          }
+        }
       } else {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+        // If loginWithEmailAndPassword returned null, it means either auth failed or user doc doesn't exist
+        debugPrint('--- Login Failed ---');
+        _showError('Giriş başarısız. E-posta veya şifre hatalı.');
       }
-    } else {
-      _showError('E-posta veya şifre hatalı.');
+    } catch (e) {
+      debugPrint('Login exception: \$e');
+      if (e.toString().contains('USER_NOT_FOUND')) {
+        _showError('Kullanıcı bilgileri bulunamadı.');
+      } else {
+        _showError('Giriş başarısız. E-posta veya şifre hatalı.');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/appointment_model.dart';
 
 class AppointmentService {
@@ -6,53 +7,61 @@ class AppointmentService {
   factory AppointmentService() => _instance;
   AppointmentService._internal();
 
-  List<AppointmentModel> _appointments = [];
-  final _appointmentsController = StreamController<List<AppointmentModel>>.broadcast();
-
-  Stream<List<AppointmentModel>> get appointmentsStream => _appointmentsController.stream;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
   Future<bool> createAppointment(AppointmentModel appointment) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    bool exists = _appointments.any((a) => 
-        a.barberId == appointment.barberId && 
-        a.date == appointment.date && 
-        a.time == appointment.time && 
-        a.status != 'İptal Edildi');
+    try {
+      // Check for existing appointment at same date/time
+      final querySnapshot = await _firestore.collection('appointments')
+          .where('barberId', isEqualTo: appointment.barberId)
+          .where('date', isEqualTo: appointment.date)
+          .where('time', isEqualTo: appointment.time)
+          .get();
 
-    if (exists) {
-      return false; 
+      if (querySnapshot.docs.any((doc) => doc.data()['status'] != 'İptal Edildi')) {
+        return false;
+      }
+
+      await _firestore.collection('appointments').doc(appointment.id).set(appointment.toMap());
+      return true;
+    } catch (e) {
+      print('Error creating appointment: $e');
+      return false;
     }
-
-    _appointments.add(appointment);
-    _appointmentsController.add(_appointments);
-    return true;
   }
 
-  Stream<List<AppointmentModel>> getUserAppointments(String userId) async* {
-    yield _appointments.where((a) => a.userId == userId).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    yield* _appointmentsController.stream.map((appointments) => 
-      appointments.where((a) => a.userId == userId).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt))
-    );
-  }
-
-  Stream<List<AppointmentModel>> getAllAppointments() async* {
-    final list = List<AppointmentModel>.from(_appointments);
-    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    yield list;
-
-    yield* _appointmentsController.stream.map((appointments) {
-      final list = List<AppointmentModel>.from(appointments);
+  Stream<List<AppointmentModel>> getUserAppointments(String userId) {
+    return _firestore.collection('appointments')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+      final list = snapshot.docs.map((doc) {
+        return AppointmentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList().cast<AppointmentModel>();
+      
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
   }
 
+  Stream<List<AppointmentModel>> getAllAppointments() {
+    return _firestore.collection('appointments')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return AppointmentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList().cast<AppointmentModel>();
+    });
+  }
+
   Future<void> updateAppointmentStatus(String appointmentId, String newStatus) async {
-    final index = _appointments.indexWhere((a) => a.id == appointmentId);
-    if (index != -1) {
-      _appointments[index] = _appointments[index].copyWith(status: newStatus);
-      _appointmentsController.add(_appointments);
+    try {
+      await _firestore.collection('appointments').doc(appointmentId).update({
+        'status': newStatus,
+      });
+    } catch (e) {
+      print('Error updating appointment status: \$e');
     }
   }
 }

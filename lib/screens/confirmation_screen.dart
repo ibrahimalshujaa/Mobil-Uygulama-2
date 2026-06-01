@@ -29,10 +29,28 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
 
   void _confirmBooking() async {
     setState(() => _isLoading = true);
-    final user = await authService.getUserData();
-
-    if (user != null) {
+    
+    try {
+      final user = await authService.getCurrentUserData();
       final dateStr = DateFormat('yyyy-MM-dd').format(widget.selectedDate);
+
+      if (user == null) {
+        debugPrint('--- Booking Error: User is null ---');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Oturum bulunamadı. Lütfen tekrar giriş yapın.'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      debugPrint('--- Confirming Booking ---');
+      debugPrint('UID: \${user.uid}');
+      debugPrint('Service: \${widget.selectedService.name}');
+      debugPrint('Date: \$dateStr');
+      debugPrint('Time: \${widget.selectedTime}');
 
       AppointmentModel newAppointment = AppointmentModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -50,10 +68,19 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
       );
 
       bool success = await appointmentService.createAppointment(newAppointment);
-      setState(() => _isLoading = false);
 
       if (success) {
+        debugPrint('Firestore save success: true');
         if (!mounted) return;
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Randevunuz başarıyla oluşturuldu.'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -78,6 +105,30 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
             ],
           ),
         );
+      } else {
+        debugPrint('Firestore save error: Failed to save appointment');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Randevu oluşturulamadı. Lütfen tekrar deneyin.'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Firestore save error: \$e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Randevu oluşturulamadı. Lütfen tekrar deneyin.'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
