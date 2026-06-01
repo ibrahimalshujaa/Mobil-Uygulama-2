@@ -14,7 +14,16 @@ class ServiceCard extends StatelessWidget {
     if (name.toLowerCase().contains('sakal')) return Icons.face;
     if (name.toLowerCase().contains('yıkama')) return Icons.water_drop;
     if (name.toLowerCase().contains('bakım')) return Icons.spa;
+    if (name.toLowerCase().contains('boya')) return Icons.color_lens;
     return Icons.design_services;
+  }
+
+  String _formatDuration(int minutes) {
+    if (minutes < 60) return '$minutes dk';
+    final hours = minutes ~/ 60;
+    final mins = minutes % 60;
+    if (mins == 0) return '$hours sa';
+    return '$hours sa $mins dk';
   }
 
   @override
@@ -61,7 +70,7 @@ class ServiceCard extends StatelessWidget {
                     children: [
                       Icon(Icons.schedule, size: 14, color: AppColors.textMuted),
                       const SizedBox(width: 4),
-                      Text('${service.duration} dk', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
+                      Text(_formatDuration(service.duration), style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
                     ],
                   ),
                 ],

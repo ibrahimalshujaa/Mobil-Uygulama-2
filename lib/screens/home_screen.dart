@@ -172,8 +172,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Expanded(
-                                child: Icon(Icons.face, size: 40, color: AppColors.primary),
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                  child: Image.asset(
+                                    style.imageUrl,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    errorBuilder: (context, error, stackTrace) => const Center(
+                                      child: Icon(Icons.face, size: 40, color: AppColors.primary),
+                                    ),
+                                  ),
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),

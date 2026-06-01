@@ -50,12 +50,25 @@ class GalleryScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: AppColors.background,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
                       ),
-                      child: const Icon(Icons.face, size: 60, color: AppColors.primary),
+                      child: Image.asset(
+                        style.imageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: AppColors.background,
+                          child: const Center(
+                            child: Icon(
+                              Icons.face,
+                              size: 60,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   Padding(
@@ -63,9 +76,19 @@ class GalleryScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(style.name, style: AppTextStyles.heading3, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(
+                          style.name,
+                          style: AppTextStyles.heading3,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 4),
-                        Text(style.shortDescription, style: AppTextStyles.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                        Text(
+                          style.shortDescription,
+                          style: AppTextStyles.bodySmall,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),

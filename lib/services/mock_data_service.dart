@@ -7,6 +7,7 @@ class MockDataService {
     ServiceModel(id: 's2', name: 'Sakal Tıraşı', duration: 20, price: 150, description: 'Sakal şekillendirme ve tıraş'),
     ServiceModel(id: 's3', name: 'Saç Yıkama', duration: 15, price: 100, description: 'Fön ve şekillendirme öncesi yıkama'),
     ServiceModel(id: 's4', name: 'Cilt Bakımı', duration: 40, price: 300, description: 'Yüz maskesi ve siyah nokta temizliği'),
+    ServiceModel(id: 's5', name: 'Saç Boyama', duration: 90, price: 1500, description: 'Profesyonel saç boyama ve renk uygulaması'),
   ];
 
   static List<BarberModel> barbers = [

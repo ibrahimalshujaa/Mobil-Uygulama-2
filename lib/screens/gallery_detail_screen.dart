@@ -31,7 +31,25 @@ class GalleryDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.primary.withOpacity(0.3)),
               ),
-              child: const Icon(Icons.face_retouching_natural, size: 100, color: AppColors.primary),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  hairstyle.imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 250,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: AppColors.secondary,
+                    child: const Center(
+                      child: Icon(
+                        Icons.face_retouching_natural,
+                        size: 100,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             Text(hairstyle.name, style: AppTextStyles.heading1),
@@ -52,7 +70,12 @@ class GalleryDetailScreen extends StatelessWidget {
                       children: [
                         const Text('Zorluk', style: AppTextStyles.bodySmall),
                         const SizedBox(height: 4),
-                        Text(hairstyle.difficulty, style: AppTextStyles.heading3.copyWith(color: AppColors.primary)),
+                        Text(
+                          hairstyle.difficulty,
+                          style: AppTextStyles.heading3.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -70,7 +93,12 @@ class GalleryDetailScreen extends StatelessWidget {
                       children: [
                         const Text('Süre', style: AppTextStyles.bodySmall),
                         const SizedBox(height: 4),
-                        Text(hairstyle.duration, style: AppTextStyles.heading3.copyWith(color: AppColors.primary)),
+                        Text(
+                          hairstyle.duration,
+                          style: AppTextStyles.heading3.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -89,11 +117,17 @@ class GalleryDetailScreen extends StatelessWidget {
               builder: (context) => AlertDialog(
                 backgroundColor: AppColors.secondary,
                 title: const Text('Başarılı', style: AppTextStyles.heading2),
-                content: const Text('Bu modeli berberinize gösterebilirsiniz.', style: AppTextStyles.bodyLarge),
+                content: const Text(
+                  'Bu modeli berberinize gösterebilirsiniz.',
+                  style: AppTextStyles.bodyLarge,
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Tamam', style: TextStyle(color: AppColors.primary)),
+                    child: const Text(
+                      'Tamam',
+                      style: TextStyle(color: AppColors.primary),
+                    ),
                   ),
                 ],
               ),
@@ -102,9 +136,14 @@ class GalleryDetailScreen extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             padding: const EdgeInsets.symmetric(vertical: 18),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
-          child: const Text('Berberime Göster', style: AppTextStyles.buttonText),
+          child: const Text(
+            'Berberime Göster',
+            style: AppTextStyles.buttonText,
+          ),
         ),
       ),
     );
