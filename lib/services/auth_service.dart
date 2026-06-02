@@ -114,7 +114,9 @@ class AuthService {
   // Get User Data (without arg)
   Future<UserModel?> getCurrentUserData() async {
     if (_auth.currentUser != null) {
-      return await getUserData(_auth.currentUser!.uid);
+      final user = await getUserData(_auth.currentUser!.uid);
+      _currentUser = user;
+      return user;
     }
     return _currentUser;
   }

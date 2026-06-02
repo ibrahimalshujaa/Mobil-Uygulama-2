@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import 'welcome_screen.dart';
+import 'main_screen.dart';
+import 'barber_main_screen.dart';
+import '../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,12 +17,50 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    // Add a small delay for the splash screen to be visible
+    await Future.delayed(const Duration(seconds: 1));
+    
+    try {
+      final user = await authService.getCurrentUserData();
+      
+      if (!mounted) return;
+
+      if (user != null) {
+        debugPrint('--- Auto Login Success ---');
+        debugPrint('current user uid: ${user.uid}');
+        debugPrint('current user email: ${user.email}');
+        debugPrint('current user role: ${user.role}');
+
+        if (user.role == 'barber' || user.role == 'admin') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const BarberMainScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+        }
+      } else {
+        debugPrint('--- Auto Login Failed ---');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => WelcomeScreen()),
+        );
+      }
+    } catch (e) {
+      debugPrint('Auth check error: $e');
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => WelcomeScreen()),
       );
-    });
+    }
   }
 
   @override
