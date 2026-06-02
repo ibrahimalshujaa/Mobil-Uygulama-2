@@ -18,28 +18,15 @@ class BarberCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.secondary,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: Border.all(color: AppColors.secondaryLight, width: 1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primary.withOpacity(0.3)),
         ),
         child: Row(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.primary, width: 2),
-              ),
-              child: CircleAvatar(
-                radius: 32,
-                backgroundColor: AppColors.secondaryLight,
-                child: Icon(Icons.person, color: AppColors.primary, size: 36),
-              ),
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: AppColors.primary.withOpacity(0.2),
+              child: Icon(Icons.person, color: AppColors.primary, size: 30),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -47,20 +34,23 @@ class BarberCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(barber.name, style: AppTextStyles.heading3),
-                  const SizedBox(height: 6),
-                  Text(barber.specialty, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: AppColors.primary, size: 16),
-                      const SizedBox(width: 4),
-                      Text(barber.rating.toString(), style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-                    ],
+                  const SizedBox(height: 4),
+                  Text(
+                    barber.specialty,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textMuted,
+                    ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textMuted),
+            Row(
+              children: [
+                Icon(Icons.star, color: AppColors.primary, size: 20),
+                const SizedBox(width: 4),
+                Text(barber.rating.toString(), style: AppTextStyles.bodyLarge),
+              ],
+            ),
           ],
         ),
       ),

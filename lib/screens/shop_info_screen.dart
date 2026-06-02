@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
+import '../services/salon_service.dart';
+import '../models/service_model.dart';
+import '../services/auth_service.dart';
 
 class ShopInfoScreen extends StatelessWidget {
   const ShopInfoScreen({super.key});
@@ -16,45 +19,87 @@ class ShopInfoScreen extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: AppColors.primary),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.secondary,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+      body: StreamBuilder<Map<String, dynamic>>(
+        stream: salonService.salonSettingsStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          }
+          final settings = snapshot.data;
+          
+          debugPrint('loading salon settings');
+          debugPrint('salon settings exists: ${settings != null && settings.isNotEmpty}');
+          debugPrint('current user role: ${authService.currentUser?.role}');
+
+          if (settings == null || settings.isEmpty) {
+            return const Center(
+              child: Text(
+                'Salon bilgileri henüz eklenmedi.',
+                style: AppTextStyles.bodyLarge,
               ),
-              child: const Icon(Icons.store, size: 80, color: AppColors.primary),
+            );
+          }
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  ),
+                  child: const Icon(Icons.store, size: 80, color: AppColors.primary),
+                ),
+                const SizedBox(height: 24),
+                Text(settings['salonName'] ?? 'StyleHub Barber Studio', style: AppTextStyles.heading1),
+                const SizedBox(height: 16),
+                Text(
+                  settings['about'] ?? '',
+                  style: AppTextStyles.bodyLarge,
+                ),
+                const SizedBox(height: 32),
+                const Text('İletişim & Adres', style: AppTextStyles.heading2),
+                const SizedBox(height: 16),
+                _buildInfoRow(Icons.location_on, 'Adres', settings['address'] ?? 'Belirtilmedi'),
+                const SizedBox(height: 16),
+                _buildInfoRow(Icons.phone, 'Telefon', settings['phone'] ?? 'Belirtilmedi'),
+                const SizedBox(height: 16),
+                _buildInfoRow(Icons.access_time, 'Çalışma Saatleri', settings['workingHours'] ?? 'Belirtilmedi'),
+                if (settings['instagram'] != null && settings['instagram'].toString().isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildInfoRow(Icons.camera_alt, 'Instagram', settings['instagram']),
+                ],
+                if (settings['whatsapp'] != null && settings['whatsapp'].toString().isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  _buildInfoRow(Icons.chat, 'WhatsApp', settings['whatsapp']),
+                ],
+                const SizedBox(height: 32),
+                const Text('Hizmetlerimiz', style: AppTextStyles.heading2),
+                const SizedBox(height: 16),
+                StreamBuilder<List<ServiceModel>>(
+                  stream: salonService.getServices(onlyActive: true),
+                  builder: (context, serviceSnapshot) {
+                    if (serviceSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    }
+                    final services = serviceSnapshot.data ?? [];
+                    if (services.isEmpty) {
+                      return const Text('Henüz hizmet eklenmedi.', style: AppTextStyles.bodyLarge);
+                    }
+                    return Column(
+                      children: services.map((s) => _buildServiceItem(s.name, '${s.duration} dk', '${s.price} ₺')).toList(),
+                    );
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            const Text('StyleHub Barber Studio', style: AppTextStyles.heading1),
-            const SizedBox(height: 16),
-            const Text(
-              'Modern ve lüks saç kesim deneyimi için doğru yerdesiniz. Deneyimli kadromuzla, tarzınızı en iyi yansıtacak kesim ve bakım hizmetlerini sunuyoruz.',
-              style: AppTextStyles.bodyLarge,
-            ),
-            const SizedBox(height: 32),
-            const Text('İletişim & Adres', style: AppTextStyles.heading2),
-            const SizedBox(height: 16),
-            _buildInfoRow(Icons.location_on, 'Adres', 'Bartın Merkez, Türkiye'),
-            const SizedBox(height: 16),
-            _buildInfoRow(Icons.phone, 'Telefon', '+90 555 555 55 55'),
-            const SizedBox(height: 16),
-            _buildInfoRow(Icons.access_time, 'Çalışma Saatleri', 'Her Gün: 09:00 - 21:00'),
-            const SizedBox(height: 32),
-            const Text('Hizmetlerimiz', style: AppTextStyles.heading2),
-            const SizedBox(height: 16),
-            _buildServiceItem('Saç Kesimi', '30 dk', '250 ₺'),
-            _buildServiceItem('Sakal Tıraşı', '20 dk', '150 ₺'),
-            _buildServiceItem('Saç Yıkama', '15 dk', '100 ₺'),
-            _buildServiceItem('Cilt Bakımı', '40 dk', '300 ₺'),
-          ],
-        ),
+          );
+        }
       ),
     );
   }

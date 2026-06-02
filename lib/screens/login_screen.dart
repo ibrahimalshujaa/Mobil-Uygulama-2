@@ -59,8 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           if (user.role == 'barber') {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BarberMainScreen()));
-          } else {
+          } else if (user.role == 'customer') {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()));
+          } else {
+            _showError('Kullanıcı rolü bulunamadı.');
           }
         }
       } else {

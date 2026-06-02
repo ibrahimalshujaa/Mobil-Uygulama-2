@@ -12,57 +12,65 @@ class MyAppointmentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Randevularım', style: AppTextStyles.heading1),
-            const SizedBox(height: 24),
-            Expanded(
-              child: StreamBuilder<List<AppointmentModel>>(
-                stream: appointmentService.getUserAppointments(
-                  authService.currentUser!.uid,
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    );
-                  }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Henüz randevunuz yok.',
-                        style: AppTextStyles.bodyLarge,
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final appointment = snapshot.data![index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AppointmentDetailScreen(appointment: appointment),
-                            ),
-                          );
-                        },
-                        child: AppointmentCard(appointment: appointment),
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Randevularım', style: AppTextStyles.heading3),
+        backgroundColor: AppColors.secondary,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: AppColors.primary),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: StreamBuilder<List<AppointmentModel>>(
+                  stream: appointmentService.getUserAppointments(
+                    authService.currentUser!.uid,
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
                       );
-                    },
-                  );
-                },
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Henüz randevunuz yok.',
+                          style: AppTextStyles.bodyLarge,
+                        ),
+                      );
+                    }
+  
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        final appointment = snapshot.data![index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AppointmentDetailScreen(appointment: appointment),
+                              ),
+                            );
+                          },
+                          child: AppointmentCard(appointment: appointment),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

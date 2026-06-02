@@ -3,7 +3,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../models/service_model.dart';
 import '../models/hairstyle_model.dart';
-import '../services/mock_data_service.dart';
+import '../services/salon_service.dart';
 import '../widgets/service_card.dart';
 import 'booking_screen.dart';
 import 'gallery_screen.dart';
@@ -74,25 +74,62 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('StyleHub Barber Studio', style: TextStyle(color: AppColors.background, fontSize: 24, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    const Text('Profesyonel Erkek Bakım Merkezi', style: TextStyle(color: AppColors.secondary, fontSize: 16)),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ServiceSelectionScreen()),
+                    StreamBuilder<Map<String, dynamic>>(
+                      stream: salonService.salonSettingsStream(),
+                      builder: (context, snapshot) {
+                        final settings = snapshot.data ?? {};
+                        final salonName = settings['salonName'] ?? 'StyleHub Barber Studio';
+                        final about = settings['about'] ?? 'Profesyonel Erkek Bakım Merkezi';
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(salonName, style: const TextStyle(color: AppColors.background, fontSize: 24, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Text(about, style: const TextStyle(color: AppColors.secondary, fontSize: 16), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          ],
                         );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.background,
-                        foregroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        elevation: 0,
-                      ),
-                      child: const Text('Hemen Randevu Oluştur', style: TextStyle(fontWeight: FontWeight.bold)),
+                      }
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const ServiceSelectionScreen()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.background,
+                              foregroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
+                            ),
+                            child: const Text('Randevu Al', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const ShopInfoScreen()),
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.background,
+                              side: const BorderSide(color: AppColors.background),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Salon Bilgileri', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -204,9 +241,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text('Hizmetler', style: AppTextStyles.heading2),
                 ),
                 const SizedBox(height: 16),
-                Builder(
-                  builder: (context) {
-                    final services = MockDataService.services;
+                StreamBuilder<List<ServiceModel>>(
+                  stream: salonService.getServices(onlyActive: true),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    }
+                    final services = snapshot.data ?? [];
                     final filteredServices = services.where((service) {
                       return service.name.toLowerCase().contains(_searchQuery);
                     }).toList();

@@ -4,6 +4,8 @@ import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../models/appointment_model.dart';
 import '../services/appointment_service.dart';
+import '../services/review_service.dart';
+import '../services/notification_service.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
   final AppointmentModel appointment;
@@ -17,11 +19,20 @@ class AppointmentDetailScreen extends StatefulWidget {
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   late AppointmentModel _appointment;
   bool _isLoading = false;
+  bool _hasReviewed = false;
 
   @override
   void initState() {
     super.initState();
     _appointment = widget.appointment;
+    _checkIfReviewed();
+  }
+
+  Future<void> _checkIfReviewed() async {
+    final reviewed = await reviewService.hasReviewed(_appointment.id);
+    if (mounted) {
+      setState(() => _hasReviewed = reviewed);
+    }
   }
 
   Future<void> _cancelAppointment() async {
@@ -39,18 +50,112 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   void _giveReview() {
+    int selectedRating = 5;
+    TextEditingController commentController = TextEditingController();
+    bool isSubmitting = false;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.secondary,
-        title: const Text('Değerlendirme Yap', style: AppTextStyles.heading2),
-        content: const Text('Bu özellik çok yakında eklenecektir.', style: AppTextStyles.bodyLarge),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam', style: TextStyle(color: AppColors.primary)),
-          ),
-        ],
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: AppColors.secondary,
+            title: const Text('Değerlendirme Yap', style: AppTextStyles.heading2),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      icon: Icon(
+                        index < selectedRating ? Icons.star : Icons.star_border,
+                        color: Colors.amber,
+                        size: 32,
+                      ),
+                      onPressed: () {
+                        setDialogState(() {
+                          selectedRating = index + 1;
+                        });
+                      },
+                    );
+                  }),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: commentController,
+                  maxLines: 3,
+                  style: const TextStyle(color: AppColors.textLight),
+                  decoration: InputDecoration(
+                    hintText: 'Yorumunuz (Opsiyonel)',
+                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    filled: true,
+                    fillColor: AppColors.background,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isSubmitting ? null : () => Navigator.pop(context),
+                child: const Text('İptal', style: TextStyle(color: AppColors.textMuted)),
+              ),
+              ElevatedButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () async {
+                        setDialogState(() => isSubmitting = true);
+                        try {
+                          await reviewService.createReview(
+                            appointmentId: _appointment.id,
+                            userId: _appointment.userId,
+                            userName: _appointment.userName,
+                            serviceName: _appointment.serviceName,
+                            rating: selectedRating.toDouble(),
+                            comment: commentController.text,
+                          );
+                          
+                          await notificationService.createNotification(
+                            userId: 'barber',
+                            roleTarget: 'barber',
+                            title: 'Yeni Değerlendirme Geldi',
+                            message: '${_appointment.userName} size $selectedRating yıldız verdi.',
+                            appointmentId: _appointment.id,
+                            type: 'review',
+                          );
+
+                          if (!context.mounted) return;
+                          Navigator.pop(context);
+                          setState(() => _hasReviewed = true);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Değerlendirmeniz kaydedildi.'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                        } catch (e) {
+                          setDialogState(() => isSubmitting = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Değerlendirme kaydedilemedi.'),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      },
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                child: isSubmitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.background, strokeWidth: 2))
+                    : const Text('Kaydet', style: TextStyle(color: AppColors.background)),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -162,18 +267,38 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         ),
       );
     } else if (_appointment.status == 'Tamamlandı') {
-      return SizedBox(
-        height: 55,
-        child: ElevatedButton(
-          onPressed: _giveReview,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.background,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      if (_hasReviewed) {
+        return Container(
+          height: 55,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.secondary,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.success.withOpacity(0.5)),
           ),
-          child: const Text('Değerlendirme Yap', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ),
-      );
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: AppColors.success),
+              SizedBox(width: 8),
+              Text('Değerlendirildi', style: TextStyle(color: AppColors.success, fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        );
+      } else {
+        return SizedBox(
+          height: 55,
+          child: ElevatedButton(
+            onPressed: _giveReview,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.background,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Değerlendirme Yap', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ),
+        );
+      }
     }
     return const SizedBox.shrink();
   }

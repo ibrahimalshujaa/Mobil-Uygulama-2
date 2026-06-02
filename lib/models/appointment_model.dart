@@ -11,6 +11,8 @@ class AppointmentModel {
   final double price;
   final String status;
   final DateTime createdAt;
+  final bool isArchived;
+  final DateTime? archivedAt;
 
   AppointmentModel({
     required this.id,
@@ -25,6 +27,8 @@ class AppointmentModel {
     required this.price,
     required this.status,
     required this.createdAt,
+    this.isArchived = false,
+    this.archivedAt,
   });
 
   factory AppointmentModel.fromMap(Map<String, dynamic> data, String documentId) {
@@ -43,6 +47,8 @@ class AppointmentModel {
       createdAt: data['createdAt'] != null 
           ? (data['createdAt'] is DateTime ? data['createdAt'] : DateTime.parse(data['createdAt'].toString())) 
           : DateTime.now(),
+      isArchived: data['isArchived'] ?? false,
+      archivedAt: data['archivedAt'] != null ? DateTime.tryParse(data['archivedAt'].toString()) : null,
     );
   }
 
@@ -59,6 +65,8 @@ class AppointmentModel {
       'price': price,
       'status': status,
       'createdAt': createdAt.toIso8601String(),
+      'isArchived': isArchived,
+      'archivedAt': archivedAt?.toIso8601String(),
     };
   }
 
@@ -75,6 +83,8 @@ class AppointmentModel {
     double? price,
     String? status,
     DateTime? createdAt,
+    bool? isArchived,
+    DateTime? archivedAt,
   }) {
     return AppointmentModel(
       id: id ?? this.id,
@@ -89,6 +99,8 @@ class AppointmentModel {
       price: price ?? this.price,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      isArchived: isArchived ?? this.isArchived,
+      archivedAt: archivedAt ?? this.archivedAt,
     );
   }
 }

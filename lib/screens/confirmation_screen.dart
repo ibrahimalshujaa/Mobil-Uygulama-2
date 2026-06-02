@@ -6,6 +6,7 @@ import '../models/service_model.dart';
 import '../models/appointment_model.dart';
 import '../services/auth_service.dart';
 import '../services/appointment_service.dart';
+import '../services/notification_service.dart';
 import 'main_screen.dart';
 
 class ConfirmationScreen extends StatefulWidget {
@@ -67,10 +68,10 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         createdAt: DateTime.now(),
       );
 
-      bool success = await appointmentService.createAppointment(newAppointment);
+      String result = await appointmentService.createAppointment(newAppointment);
 
-      if (success) {
-        debugPrint('Firestore save success: true');
+      if (result == 'success') {
+        
         if (!mounted) return;
         
         ScaffoldMessenger.of(context).showSnackBar(
@@ -103,6 +104,16 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 ),
               ),
             ],
+          ),
+        );
+      } else if (result == 'conflict') {
+        debugPrint('Firestore save error: Conflict found');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bu tarih ve saat için zaten bir randevu var. Lütfen farklı bir saat seçin.'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       } else {
