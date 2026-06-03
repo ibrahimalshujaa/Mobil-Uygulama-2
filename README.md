@@ -1,217 +1,217 @@
-# StyleHub — Barber Shop Mobile App
+# StyleHub — Berberhane Mobil Uygulaması
 
-> Aplikasi mobile pemesanan layanan barbershop berbasis Flutter + Firebase, dengan dua mode pengguna: **Customer** dan **Barber (Panel Admin)**.
+> Flutter + Firebase tabanlı berberhane randevu mobil uygulaması. İki kullanıcı modu desteklenmektedir: **Müşteri** ve **Berber (Yönetici Paneli)**.
 
 ---
 
-## 📱 Tampilan Aplikasi
+## 📱 Uygulama Görünümü
 
-### Alur Navigasi Customer
+### Müşteri Navigasyon Akışı
 ```
-Splash → Welcome → Login / Register
-                        ↓
-               ┌────────────────────────────────┐
-               │     Main Screen (Bottom Nav)    │
-               ├──────────┬──────────┬───────────┤
-               │ Ana Sayfa│Randevularım│  Profil  │
-               └──────────┴──────────┴───────────┘
-                    ↓           ↓           ↓
-              Home Screen  My Appts   Profile Screen
-                    ↓
-            ┌───────────────┐
-            │  Hizmet Seç   │ → Berber Seç → Booking → Konfirmasyon
-            ├───────────────┤
-            │ Galeriye Git  │ → Gallery Detail
-            ├───────────────┤
-            │ Salon Bilgisi │
-            ├───────────────┤
-            │ Bildirimler   │
-            └───────────────┘
+Açılış → Karşılama → Giriş / Kayıt
+                         ↓
+                ┌────────────────────────────────┐
+                │     Ana Ekran (Alt Navigasyon)  │
+                ├──────────┬──────────┬───────────┤
+                │ Ana Sayfa│Randevularım│  Profil  │
+                └──────────┴──────────┴───────────┘
+                     ↓           ↓           ↓
+               Ana Ekran  Randevularım   Profil Ekranı
+                     ↓
+             ┌───────────────┐
+             │  Hizmet Seç   │ → Berber Seç → Rezervasyon → Onay
+             ├───────────────┤
+             │ Galeriye Git  │ → Galeri Detayı
+             ├───────────────┤
+             │ Salon Bilgisi │
+             ├───────────────┤
+             │ Bildirimler   │
+             └───────────────┘
 ```
 
-### Alur Navigasi Barber
+### Berber Navigasyon Akışı
 ```
-Splash → BarberMainScreen (Bottom Nav)
+Açılış → BerberAnaEkranı (Alt Navigasyon)
          ┌──────────┬────────────┬──────────┐
          │  Panel   │  Hizmetler │  Profil  │
          └──────────┴────────────┴──────────┘
               ↓            ↓          ↓
-        BarberPanel  ServiceMgmt  Profile
+        BerberPaneli  HizmetYönetimi  Profil
               ↓
         Bildirimler / Salon Ayarları
 ```
 
 ---
 
-## 🗂️ Struktur Folder Proyek
+## 🗂️ Proje Klasör Yapısı
 
 ```
 lib/
-├── main.dart                        # Entry point aplikasi
-├── firebase_options.dart            # Konfigurasi Firebase
+├── main.dart                        # Uygulama giriş noktası
+├── firebase_options.dart            # Firebase yapılandırması
 │
-├── constants/                       # Konstanta desain
-│   ├── app_colors.dart              # Palet warna (dark theme + gold)
+├── constants/                       # Tasarım sabitleri
+│   ├── app_colors.dart              # Renk paleti (koyu tema + altın)
 │   └── app_text_styles.dart         # Tipografi
 │
-├── models/                          # Model data
-│   ├── appointment_model.dart       # Data randevu/appointment
-│   ├── barber_model.dart            # Data berber
-│   ├── hairstyle_model.dart         # Data model gaya rambut
-│   ├── notification_model.dart      # Data notifikasi
-│   ├── service_model.dart           # Data layanan/hizmet
-│   └── user_model.dart              # Data pengguna
+├── models/                          # Veri modelleri
+│   ├── appointment_model.dart       # Randevu verisi
+│   ├── barber_model.dart            # Berber verisi
+│   ├── hairstyle_model.dart         # Saç modeli verisi
+│   ├── notification_model.dart      # Bildirim verisi
+│   ├── service_model.dart           # Hizmet verisi
+│   └── user_model.dart              # Kullanıcı verisi
 │
-├── services/                        # Logika bisnis & Firebase
-│   ├── auth_service.dart            # Login, register, logout
-│   ├── appointment_service.dart     # CRUD randevu
-│   ├── notification_service.dart    # Push & baca notifikasi
-│   ├── review_service.dart          # Ulasan pelanggan
-│   ├── salon_service.dart           # Layanan & pengaturan salon
-│   ├── user_service.dart            # Update profil pengguna
-│   └── mock_data_service.dart       # Data dummy untuk development
+├── services/                        # İş mantığı & Firebase
+│   ├── auth_service.dart            # Giriş, kayıt, çıkış
+│   ├── appointment_service.dart     # Randevu CRUD işlemleri
+│   ├── notification_service.dart    # Bildirim gönderme & okuma
+│   ├── review_service.dart          # Müşteri yorumları
+│   ├── salon_service.dart           # Hizmetler & salon ayarları
+│   ├── user_service.dart            # Kullanıcı profil güncelleme
+│   └── mock_data_service.dart       # Geliştirme için örnek veriler
 │
-├── widgets/                         # Komponen UI reusable
-│   ├── appointment_card.dart        # Kartu randevu
-│   ├── barber_card.dart             # Kartu berber
-│   └── service_card.dart            # Kartu layanan
+├── widgets/                         # Yeniden kullanılabilir UI bileşenleri
+│   ├── appointment_card.dart        # Randevu kartı
+│   ├── barber_card.dart             # Berber kartı
+│   └── service_card.dart            # Hizmet kartı
 │
-└── screens/                         # Semua layar aplikasi
+└── screens/                         # Tüm uygulama ekranları
     │
-    │  ── AUTH (Autentikasi) ──
-    ├── splash_screen.dart           # Layar pembuka (cek login otomatis)
-    ├── welcome_screen.dart          # Halaman selamat datang
-    ├── login_screen.dart            # Form login
-    ├── register_screen.dart         # Form registrasi
+    │  ── KİMLİK DOĞRULAMA ──
+    ├── splash_screen.dart           # Açılış ekranı (otomatik giriş kontrolü)
+    ├── welcome_screen.dart          # Hoş geldiniz sayfası
+    ├── login_screen.dart            # Giriş formu
+    ├── register_screen.dart         # Kayıt formu
     │
-    │  ── CUSTOMER MENU ──
+    │  ── MÜŞTERİ MENÜSÜ ──
     ├── main_screen.dart             # [Nav] Ana Sayfa / Randevularım / Profil
-    ├── home_screen.dart             # Tab: Ana Sayfa
-    ├── my_appointments_screen.dart  # Tab: Randevularım (daftar randevu)
-    ├── appointment_detail_screen.dart  # Detail & batalkan randevu
+    ├── home_screen.dart             # Sekme: Ana Sayfa
+    ├── my_appointments_screen.dart  # Sekme: Randevularım (randevu listesi)
+    ├── appointment_detail_screen.dart  # Randevu detayı & iptal
     │
-    │  ── BOOKING FLOW (Alur Pemesanan) ──
-    ├── service_selection_screen.dart   # Langkah 1: Pilih Layanan
-    ├── barber_selection_screen.dart    # Langkah 2: Pilih Berber
-    ├── booking_screen.dart             # Langkah 3: Pilih Tanggal & Jam
-    ├── confirmation_screen.dart        # Langkah 4: Konfirmasi & Bayar
+    │  ── REZERVASYON AKIŞI ──
+    ├── service_selection_screen.dart   # Adım 1: Hizmet Seç
+    ├── barber_selection_screen.dart    # Adım 2: Berber Seç
+    ├── booking_screen.dart             # Adım 3: Tarih & Saat Seç
+    ├── confirmation_screen.dart        # Adım 4: Onayla & Öde
     │
-    │  ── INFORMASI SALON ──
-    ├── shop_info_screen.dart        # Info salon, alamat, jam buka
-    ├── gallery_screen.dart          # Galeri gaya rambut
-    ├── gallery_detail_screen.dart   # Detail model rambut
-    ├── barber_detail_screen.dart    # Profil berber & ulasan
-    ├── reviews_screen.dart          # Daftar ulasan pelanggan
-    ├── notifications_screen.dart    # Notifikasi pelanggan
+    │  ── SALON BİLGİSİ ──
+    ├── shop_info_screen.dart        # Salon bilgisi, adres, çalışma saatleri
+    ├── gallery_screen.dart          # Saç modeli galerisi
+    ├── gallery_detail_screen.dart   # Saç modeli detayı
+    ├── barber_detail_screen.dart    # Berber profili & yorumlar
+    ├── reviews_screen.dart          # Müşteri yorumları listesi
+    ├── notifications_screen.dart    # Müşteri bildirimleri
     │
-    │  ── BARBER PANEL ──
+    │  ── BERBER PANELİ ──
     ├── barber_main_screen.dart      # [Nav] Panel / Hizmetler / Profil
-    ├── barber_panel_screen.dart     # Tab: Panel (randevu masuk, statistik)
-    ├── service_management_screen.dart  # Tab: Hizmetler (kelola layanan)
-    ├── barber_notifications_screen.dart  # Notifikasi berber
-    ├── salon_settings_screen.dart   # Pengaturan salon (nama, jam, dll)
+    ├── barber_panel_screen.dart     # Sekme: Panel (gelen randevular, istatistikler)
+    ├── service_management_screen.dart  # Sekme: Hizmetler (hizmet yönetimi)
+    ├── barber_notifications_screen.dart  # Berber bildirimleri
+    ├── salon_settings_screen.dart   # Salon ayarları (isim, saatler, vb.)
     │
-    │  ── SHARED (Digunakan Customer & Barber) ──
-    ├── profile_screen.dart          # Tab: Profil (customer & barber)
-    ├── edit_profile_screen.dart     # Edit data profil
-    └── admin_screen.dart            # Panel admin (khusus role admin)
+    │  ── ORTAK (Müşteri & Berber tarafından kullanılır) ──
+    ├── profile_screen.dart          # Sekme: Profil (müşteri & berber)
+    ├── edit_profile_screen.dart     # Profil düzenleme
+    └── admin_screen.dart            # Yönetici paneli (yalnızca admin rolü)
 ```
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Temel Özellikler
 
-### 👤 Customer
-| Fitur | Keterangan |
+### 👤 Müşteri
+| Özellik | Açıklama |
 |---|---|
-| **Autentikasi** | Login / Register / Logout via Firebase Auth |
-| **Lihat Layanan** | Daftar layanan dengan harga & durasi, bisa dicari |
-| **Pesan Randevu** | Pilih layanan → berber → tanggal & jam → konfirmasi |
-| **Randevularım** | Lihat semua randevu aktif & riwayat |
-| **Batalkan** | Batalkan randevu yang masih aktif |
-| **Beri Ulasan** | Rating bintang & komentar setelah randevu selesai |
-| **Galeri** | Lihat model rambut & tips perawatan |
-| **Info Salon** | Alamat, telepon, jam buka, Instagram, WhatsApp |
-| **Notifikasi** | Terima update status randevu secara real-time |
+| **Kimlik Doğrulama** | Firebase Auth ile Giriş / Kayıt / Çıkış |
+| **Hizmetleri Görüntüle** | Fiyat & süre bilgisiyle hizmet listesi, arama desteği |
+| **Randevu Al** | Hizmet → berber → tarih & saat → onay akışı |
+| **Randevularım** | Tüm aktif randevuları & geçmişi görüntüle |
+| **İptal Et** | Aktif randevuyu iptal et |
+| **Yorum Yap** | Tamamlanan randevu sonrası yıldız puanı & yorum |
+| **Galeri** | Saç modellerini & bakım ipuçlarını görüntüle |
+| **Salon Bilgisi** | Adres, telefon, çalışma saatleri, Instagram, WhatsApp |
+| **Bildirimler** | Randevu durum güncellemelerini gerçek zamanlı al |
 
-### ✂️ Barber
-| Fitur | Keterangan |
+### ✂️ Berber
+| Özellik | Açıklama |
 |---|---|
-| **Panel Dashboard** | Lihat randevu masuk hari ini & statistik |
-| **Kelola Randevu** | Terima / selesaikan / batalkan randevu |
-| **Kelola Layanan** | Tambah, edit, aktif/nonaktif layanan & harga |
-| **Pengaturan Salon** | Update nama salon, deskripsi, jam buka, kontak |
-| **Notifikasi** | Terima notifikasi pemesanan & ulasan baru |
-| **Profil** | Edit data profil berber |
+| **Panel Gösterge Tablosu** | Bugünkü randevuları & istatistikleri görüntüle |
+| **Randevu Yönetimi** | Randevuları onayla / tamamla / iptal et |
+| **Hizmet Yönetimi** | Hizmet & fiyat ekle, düzenle, aktif/pasif yap |
+| **Salon Ayarları** | Salon adı, açıklama, çalışma saatleri, iletişim güncelle |
+| **Bildirimler** | Yeni rezervasyon & yorum bildirimlerini al |
+| **Profil** | Berber profil bilgilerini düzenle |
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Teknoloji Yığını
 
-| Teknologi | Versi | Kegunaan |
+| Teknoloji | Sürüm | Kullanım Amacı |
 |---|---|---|
-| **Flutter** | 3.41.9 (stable) | Framework utama |
-| **Dart** | ^3.11.4 | Bahasa pemrograman |
-| **Firebase Auth** | ^6.5.1 | Autentikasi pengguna |
-| **Cloud Firestore** | ^6.4.1 | Database real-time |
-| **Firebase Core** | ^4.9.0 | Inisialisasi Firebase |
-| **intl** | ^0.20.2 | Format tanggal & angka |
-| **table_calendar** | ^3.2.0 | Kalender pilih tanggal |
-| **flutter_rating_bar** | ^4.0.1 | Bintang rating ulasan |
-| **fl_chart** | ^1.2.0 | Grafik statistik di panel berber |
-| **http** | ^1.6.0 | HTTP requests |
+| **Flutter** | 3.41.9 (stable) | Ana framework |
+| **Dart** | ^3.11.4 | Programlama dili |
+| **Firebase Auth** | ^6.5.1 | Kullanıcı kimlik doğrulama |
+| **Cloud Firestore** | ^6.4.1 | Gerçek zamanlı veritabanı |
+| **Firebase Core** | ^4.9.0 | Firebase başlatma |
+| **intl** | ^0.20.2 | Tarih & sayı biçimlendirme |
+| **table_calendar** | ^3.2.0 | Tarih seçimi takvimi |
+| **flutter_rating_bar** | ^4.0.1 | Yorum yıldız puanı |
+| **fl_chart** | ^1.2.0 | Berber paneli istatistik grafikleri |
+| **http** | ^1.6.0 | HTTP istekleri |
 
 ---
 
-## 🚀 Cara Menjalankan
+## 🚀 Nasıl Çalıştırılır
 
-### Prasyarat
+### Ön Koşullar
 - Flutter SDK ≥ 3.41.9
 - Android Studio / VS Code
-- Firebase project yang sudah dikonfigurasi
-- Device/emulator Android atau iOS
+- Yapılandırılmış bir Firebase projesi
+- Android veya iOS cihaz/emülatör
 
-### Langkah-langkah
+### Adımlar
 
 ```bash
-# 1. Clone repositori
+# 1. Depoyu klonla
 git clone <repository-url>
 cd Mobil-Uygulama-2
 
-# 2. Install dependencies
+# 2. Bağımlılıkları yükle
 flutter pub get
 
-# 3. Jalankan aplikasi
+# 3. Uygulamayı çalıştır
 flutter run
 
-# 4. Build APK (opsional)
+# 4. APK derle (isteğe bağlı)
 flutter build apk --release
 ```
 
-### Konfigurasi Firebase
-1. Buat project di [Firebase Console](https://console.firebase.google.com)
-2. Tambahkan Android app dengan package `com.example.style_hub`
-3. Download `google-services.json` → taruh di `android/app/`
-4. Aktifkan **Authentication** (Email/Password) dan **Cloud Firestore**
-5. Set Firestore rules sesuai kebutuhan
+### Firebase Yapılandırması
+1. [Firebase Console](https://console.firebase.google.com) üzerinde proje oluştur
+2. `com.example.style_hub` paket adıyla Android uygulaması ekle
+3. `google-services.json` dosyasını indir → `android/app/` dizinine koy
+4. **Authentication** (E-posta/Şifre) ve **Cloud Firestore**'u etkinleştir
+5. Firestore kurallarını ihtiyaca göre ayarla
 
 ---
 
-## 🎨 Desain & Tema
+## 🎨 Tasarım & Tema
 
-Aplikasi menggunakan **dark theme** dengan aksen gold:
+Uygulama, altın vurgularla **koyu tema** kullanmaktadır:
 
-| Elemen | Warna |
+| Öğe | Renk |
 |---|---|
-| Background utama | `#0F0F0F` (hitam gelap) |
-| Background kartu | `#1A1A2E` |
-| Aksen utama (gold) | `#C9A84C` |
-| Teks utama | `#F5F5F5` |
-| Teks sekunder | `#A0A0A0` |
+| Ana arka plan | `#0F0F0F` (koyu siyah) |
+| Kart arka planı | `#1A1A2E` |
+| Ana vurgu (altın) | `#C9A84C` |
+| Ana metin | `#F5F5F5` |
+| İkincil metin | `#A0A0A0` |
 
 ---
 
-## 📂 Database Structure (Firestore)
+## 📂 Veritabanı Yapısı (Firestore)
 
 ```
 firestore/
@@ -229,7 +229,7 @@ firestore/
 │
 ├── services/{id}
 │   ├── name, description
-│   ├── duration (menit), price
+│   ├── duration (dakika), price
 │   ├── isActive
 │   └── createdAt
 │
@@ -255,29 +255,29 @@ firestore/
 
 ---
 
-## 📋 Android Build Config
+## 📋 Android Derleme Yapılandırması
 
-| Komponen | Versi |
+| Bileşen | Sürüm |
 |---|---|
 | Gradle | 8.7 |
 | Android Gradle Plugin (AGP) | 8.5.2 |
 | Kotlin | 2.0.21 |
-| compileSdk | Flutter default |
-| minSdk | Flutter default |
+| compileSdk | Flutter varsayılanı |
+| minSdk | Flutter varsayılanı |
 | Java | 17 |
 
 ---
 
-## 👥 Role Pengguna
+## 👥 Kullanıcı Rolleri
 
-| Role | Akses |
+| Rol | Erişim |
 |---|---|
-| `customer` | Pesan randevu, lihat galeri, beri ulasan, notifikasi |
-| `barber` | Kelola randevu, kelola layanan, pengaturan salon, notifikasi |
-| `admin` | Semua akses barber + panel admin |
+| `customer` | Randevu al, galeriyi görüntüle, yorum yap, bildirimler |
+| `barber` | Randevu yönetimi, hizmet yönetimi, salon ayarları, bildirimler |
+| `admin` | Tüm berber erişimi + yönetici paneli |
 
 ---
 
-## 📝 Lisensi
+## 📝 Lisans
 
-Project ini dibuat untuk keperluan pribadi/akademik. Dilarang didistribusikan tanpa izin.
+Bu proje kişisel/akademik amaçlar için oluşturulmuştur. İzinsiz dağıtımı yasaktır.
