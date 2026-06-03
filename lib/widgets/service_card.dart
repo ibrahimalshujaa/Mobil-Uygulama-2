@@ -112,6 +112,17 @@ class ServiceCard extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (service.description.trim().isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            service.description.trim(),
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textMuted,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ],
                     ),
                   ),

@@ -8,7 +8,7 @@ import '../widgets/appointment_card.dart';
 import 'appointment_detail_screen.dart';
 
 class MyAppointmentsScreen extends StatelessWidget {
-  MyAppointmentsScreen({super.key});
+  const MyAppointmentsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class MyAppointmentsScreen extends StatelessWidget {
                         ),
                       );
                     }
-  
+
                     return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
@@ -58,7 +58,9 @@ class MyAppointmentsScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => AppointmentDetailScreen(appointment: appointment),
+                                builder: (context) => AppointmentDetailScreen(
+                                  appointment: appointment,
+                                ),
                               ),
                             );
                           },

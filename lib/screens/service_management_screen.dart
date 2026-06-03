@@ -8,30 +8,55 @@ class ServiceManagementScreen extends StatefulWidget {
   const ServiceManagementScreen({super.key});
 
   @override
-  State<ServiceManagementScreen> createState() => _ServiceManagementScreenState();
+  State<ServiceManagementScreen> createState() =>
+      _ServiceManagementScreenState();
 }
 
 class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
-  void _showAddServiceDialog(BuildContext context, [ServiceModel? existingService]) {
-    final nameController = TextEditingController(text: existingService?.name ?? '');
-    final durationController = TextEditingController(text: existingService != null ? existingService.duration.toString() : '');
-    final priceController = TextEditingController(text: existingService != null ? existingService.price.toString() : '');
-    final descController = TextEditingController(text: existingService?.description ?? '');
+  void _showAddServiceDialog(
+    BuildContext context, [
+    ServiceModel? existingService,
+  ]) {
+    final nameController = TextEditingController(
+      text: existingService?.name ?? '',
+    );
+    final durationController = TextEditingController(
+      text: existingService != null ? existingService.duration.toString() : '',
+    );
+    final priceController = TextEditingController(
+      text: existingService != null ? existingService.price.toString() : '',
+    );
+    final descController = TextEditingController(
+      text: existingService?.description ?? '',
+    );
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.secondary,
-        title: Text(existingService == null ? 'Yeni Hizmet Ekle' : 'Hizmeti Düzenle', style: AppTextStyles.heading2),
+        title: Text(
+          existingService == null ? 'Yeni Hizmet Ekle' : 'Hizmeti Düzenle',
+          style: AppTextStyles.heading2,
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildTextField(nameController, 'Hizmet Adı', Icons.cut),
               const SizedBox(height: 12),
-              _buildTextField(durationController, 'Süre (dk)', Icons.timer, isNumber: true),
+              _buildTextField(
+                durationController,
+                'Süre (dk)',
+                Icons.timer,
+                isNumber: true,
+              ),
               const SizedBox(height: 12),
-              _buildTextField(priceController, 'Fiyat (₺)', Icons.attach_money, isNumber: true),
+              _buildTextField(
+                priceController,
+                'Fiyat (₺)',
+                Icons.attach_money,
+                isNumber: true,
+              ),
               const SizedBox(height: 12),
               _buildTextField(descController, 'Açıklama', Icons.description),
             ],
@@ -40,12 +65,21 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('İptal', style: TextStyle(color: AppColors.textMuted)),
+            child: const Text(
+              'İptal',
+              style: TextStyle(color: AppColors.textMuted),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
-              if (nameController.text.isEmpty || durationController.text.isEmpty || priceController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lütfen zorunlu alanları doldurun.')));
+              if (nameController.text.isEmpty ||
+                  durationController.text.isEmpty ||
+                  priceController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Lütfen zorunlu alanları doldurun.'),
+                  ),
+                );
                 return;
               }
               final service = ServiceModel(
@@ -57,7 +91,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                 isActive: existingService?.isActive ?? true,
                 createdAt: existingService?.createdAt ?? DateTime.now(),
               );
-              
+
               if (existingService == null) {
                 await salonService.addService(service);
               } else {
@@ -67,14 +101,22 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Kaydet', style: TextStyle(color: AppColors.background)),
+            child: const Text(
+              'Kaydet',
+              style: TextStyle(color: AppColors.background),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, IconData icon, {bool isNumber = false}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint,
+    IconData icon, {
+    bool isNumber = false,
+  }) {
     return TextField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
@@ -85,7 +127,10 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
         prefixIcon: Icon(icon, color: AppColors.primary),
         filled: true,
         fillColor: AppColors.background,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
       ),
     );
   }
@@ -105,14 +150,21 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
         stream: salonService.getServices(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
           final services = snapshot.data ?? [];
-          
+
           debugPrint('services loaded count: ${services.length}');
 
           if (services.isEmpty) {
-            return const Center(child: Text('Henüz hizmet eklenmedi.', style: AppTextStyles.bodyLarge));
+            return const Center(
+              child: Text(
+                'Henüz hizmet eklenmedi.',
+                style: AppTextStyles.bodyLarge,
+              ),
+            );
           }
 
           return ListView.builder(
@@ -124,7 +176,9 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: service.isActive ? AppColors.secondary : AppColors.secondary.withOpacity(0.5),
+                  color: service.isActive
+                      ? AppColors.secondary
+                      : AppColors.secondary.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.secondaryLight),
                 ),
@@ -136,27 +190,44 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                         color: AppColors.background,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(Icons.cut, color: service.isActive ? AppColors.primary : AppColors.textMuted),
+                      child: Icon(
+                        Icons.cut,
+                        color: service.isActive
+                            ? AppColors.primary
+                            : AppColors.textMuted,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(service.name, style: AppTextStyles.bodyLarge.copyWith(
-                            color: service.isActive ? AppColors.textLight : AppColors.textMuted,
-                            decoration: service.isActive ? null : TextDecoration.lineThrough,
-                          )),
+                          Text(
+                            service.name,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: service.isActive
+                                  ? AppColors.textLight
+                                  : AppColors.textMuted,
+                              decoration: service.isActive
+                                  ? null
+                                  : TextDecoration.lineThrough,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('${service.duration} dk | ${service.price} ₺', style: AppTextStyles.bodySmall),
+                          Text(
+                            '${service.duration} dk | ${service.price} ₺',
+                            style: AppTextStyles.bodySmall,
+                          ),
                         ],
                       ),
                     ),
                     Switch(
                       value: service.isActive,
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                       onChanged: (val) async {
-                        await salonService.updateService(service.copyWith(isActive: val));
+                        await salonService.updateService(
+                          service.copyWith(isActive: val),
+                        );
                       },
                     ),
                     IconButton(
@@ -170,11 +241,25 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: AppColors.secondary,
-                            title: const Text('Sil', style: AppTextStyles.heading2),
-                            content: const Text('Bu hizmeti silmek istediğinize emin misiniz?'),
+                            title: const Text(
+                              'Sil',
+                              style: AppTextStyles.heading2,
+                            ),
+                            content: const Text(
+                              'Bu hizmeti silmek istediğinize emin misiniz?',
+                            ),
                             actions: [
-                              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('İptal')),
-                              TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Sil', style: TextStyle(color: AppColors.error))),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('İptal'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text(
+                                  'Sil',
+                                  style: TextStyle(color: AppColors.error),
+                                ),
+                              ),
                             ],
                           ),
                         );

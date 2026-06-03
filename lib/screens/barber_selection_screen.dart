@@ -11,7 +11,7 @@ import 'barber_detail_screen.dart';
 class BarberSelectionScreen extends StatelessWidget {
   final ServiceModel selectedService;
 
-  BarberSelectionScreen({super.key, required this.selectedService});
+  const BarberSelectionScreen({super.key, required this.selectedService});
 
   @override
   Widget build(BuildContext context) {

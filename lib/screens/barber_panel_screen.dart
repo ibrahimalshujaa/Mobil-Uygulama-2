@@ -61,8 +61,6 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
               .toList();
 
           final today = DateTime.now();
-          final todayStr =
-              "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
           final pendingAppointments = activeAppointments
               .where((a) => a.status == 'Bekliyor')
@@ -80,20 +78,57 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
             (sum, a) => sum + a.price,
           );
 
-          final todayRevenue = completedAppts
-              .where((a) {
-                try {
-                  if (a.date == todayStr) return true;
-                  final normalized = a.date.replaceAll('.', '-');
-                  final d = DateTime.parse(normalized);
-                  return d.year == today.year &&
-                      d.month == today.month &&
-                      d.day == today.day;
-                } catch (e) {
-                  return false;
+          debugPrint('--- TODAY REVENUE CALCULATION ---');
+          debugPrint('today date: $today');
+          
+          double todayRevenue = 0.0;
+          for (var a in allAppointments) {
+            bool included = false;
+            
+            if (a.status == 'Tamamlandı') {
+              try {
+                DateTime? apptDate;
+                final dateStr = a.date;
+                if (dateStr.contains('.')) {
+                  final parts = dateStr.split('.');
+                  if (parts.length == 3) {
+                     apptDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+                  }
+                } else if (dateStr.contains('/')) {
+                  final parts = dateStr.split('/');
+                  if (parts.length == 3) {
+                     apptDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+                  }
+                } else if (dateStr.contains('-')) {
+                  final parts = dateStr.split('-');
+                  if (parts.length == 3) {
+                    if (parts[0].length == 4) {
+                       apptDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+                    } else {
+                       apptDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+                    }
+                  }
                 }
-              })
-              .fold(0.0, (sum, a) => sum + a.price);
+                
+                if (apptDate != null && 
+                    apptDate.year == today.year && 
+                    apptDate.month == today.month && 
+                    apptDate.day == today.day) {
+                  included = true;
+                  todayRevenue += a.price;
+                }
+              } catch (e) {
+                debugPrint('Error parsing date: ${a.date} - $e');
+              }
+            }
+
+            debugPrint('appointment date: ${a.date}');
+            debugPrint('appointment status: ${a.status}');
+            debugPrint('appointment price: ${a.price}');
+            debugPrint('included in today revenue: $included');
+          }
+          debugPrint('final today revenue: $todayRevenue');
+          debugPrint('---------------------------------');
 
           List<AppointmentModel> filteredAppointments = activeAppointments;
           if (_selectedFilter != 'Tümü') {
@@ -593,6 +628,26 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.success,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(
+                Icons.access_time,
+                color: AppColors.textMuted,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                // ignore: unnecessary_null_comparison
+                appointment.createdAt != null
+                    ? 'Talep Zamanı: ${appointment.createdAt.day.toString().padLeft(2, '0')}.${appointment.createdAt.month.toString().padLeft(2, '0')}.${appointment.createdAt.year} ${appointment.createdAt.hour.toString().padLeft(2, '0')}:${appointment.createdAt.minute.toString().padLeft(2, '0')}'
+                    : 'Talep zamanı bilinmiyor',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textMuted,
                 ),
               ),
             ],

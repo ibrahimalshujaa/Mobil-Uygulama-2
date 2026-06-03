@@ -13,8 +13,11 @@ class AppointmentService {
 
   Future<String> createAppointment(AppointmentModel appointment) async {
     try {
-      debugPrint('checking appointment conflict date/time: ${appointment.date} ${appointment.time}');
-      final querySnapshot = await _firestore.collection('appointments')
+      debugPrint(
+        'checking appointment conflict date/time: ${appointment.date} ${appointment.time}',
+      );
+      final querySnapshot = await _firestore
+          .collection('appointments')
           .where('barberId', isEqualTo: appointment.barberId)
           .where('date', isEqualTo: appointment.date)
           .where('time', isEqualTo: appointment.time)
@@ -31,9 +34,14 @@ class AppointmentService {
         return 'conflict';
       }
 
-      await _firestore.collection('appointments').doc(appointment.id).set(appointment.toMap());
-      
-      debugPrint('Creating customer notification for uid: ${appointment.userId}');
+      await _firestore
+          .collection('appointments')
+          .doc(appointment.id)
+          .set(appointment.toMap());
+
+      debugPrint(
+        'Creating customer notification for uid: ${appointment.userId}',
+      );
       await notificationService.createNotification(
         userId: appointment.userId,
         roleTarget: 'customer',
@@ -48,7 +56,8 @@ class AppointmentService {
         userId: 'barber',
         roleTarget: 'barber',
         title: 'Yeni Randevu Talebi',
-        message: '${appointment.userName} adlı müşteri ${appointment.date} tarihinde saat ${appointment.time} için yeni randevu oluşturdu.',
+        message:
+            '${appointment.userName} adlı müşteri ${appointment.date} tarihinde saat ${appointment.time} için yeni randevu oluşturdu.',
         appointmentId: appointment.id,
         type: 'new_appointment',
       );
@@ -61,41 +70,53 @@ class AppointmentService {
   }
 
   Stream<List<AppointmentModel>> getUserAppointments(String userId) {
-    return _firestore.collection('appointments')
+    return _firestore
+        .collection('appointments')
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map((snapshot) {
-      final list = snapshot.docs.map((doc) {
-        return AppointmentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      }).toList().cast<AppointmentModel>();
-      
-      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return list;
-    });
+          final list = snapshot.docs
+              .map((doc) {
+                return AppointmentModel.fromMap(doc.data(), doc.id);
+              })
+              .toList()
+              .cast<AppointmentModel>();
+
+          list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return list;
+        });
   }
 
   Stream<List<AppointmentModel>> getAllAppointments() {
-    return _firestore.collection('appointments')
-        .snapshots()
-        .map((snapshot) {
-      final list = snapshot.docs.map((doc) {
-        return AppointmentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      }).toList().cast<AppointmentModel>();
-      
+    return _firestore.collection('appointments').snapshots().map((snapshot) {
+      final list = snapshot.docs
+          .map((doc) {
+            return AppointmentModel.fromMap(doc.data(), doc.id);
+          })
+          .toList()
+          .cast<AppointmentModel>();
+
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return list;
     });
   }
 
-  Future<void> updateAppointmentStatus(String appointmentId, String newStatus, {String? userId}) async {
+  Future<void> updateAppointmentStatus(
+    String appointmentId,
+    String newStatus, {
+    String? userId,
+  }) async {
     try {
       await _firestore.collection('appointments').doc(appointmentId).update({
         'status': newStatus,
       });
-      
+
       String? customerName;
-      
-      final doc = await _firestore.collection('appointments').doc(appointmentId).get();
+
+      final doc = await _firestore
+          .collection('appointments')
+          .doc(appointmentId)
+          .get();
       if (doc.exists) {
         userId ??= doc.data()?['userId'] as String?;
         customerName = doc.data()?['userName'] as String?;
@@ -125,27 +146,29 @@ class AppointmentService {
           barberMessage = '$customerName adlı müşteri randevusunu iptal etti.';
         } else if (newStatus == 'Tamamlandı') {
           customerTitle = 'Randevu Tamamlandı';
-          customerMessage = 'Randevunuz tamamlandı. Değerlendirme yapabilirsiniz.';
+          customerMessage =
+              'Randevunuz tamamlandı. Değerlendirme yapabilirsiniz.';
           barberTitle = 'Randevu Tamamlandı';
-          barberMessage = '$customerName adlı müşterinin randevusu başarıyla tamamlandı.';
+          barberMessage =
+              '$customerName adlı müşterinin randevusu başarıyla tamamlandı.';
         }
 
         if (customerTitle.isNotEmpty) {
           debugPrint('Creating customer notification for uid: $userId');
           await notificationService.createNotification(
-            userId: userId, 
+            userId: userId,
             roleTarget: 'customer',
-            title: customerTitle, 
+            title: customerTitle,
             message: customerMessage,
             appointmentId: appointmentId,
             type: 'status_update',
           );
-          
+
           debugPrint('Creating barber notification:');
           await notificationService.createNotification(
-            userId: 'barber', 
+            userId: 'barber',
             roleTarget: 'barber',
-            title: barberTitle, 
+            title: barberTitle,
             message: barberMessage,
             appointmentId: appointmentId,
             type: 'status_update',
