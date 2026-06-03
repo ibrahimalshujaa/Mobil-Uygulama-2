@@ -147,7 +147,6 @@ class BarberDetailScreen extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => BookingScreen(
                     selectedService: selectedService,
-                    selectedBarber: barber,
                   ),
                 ),
               );
