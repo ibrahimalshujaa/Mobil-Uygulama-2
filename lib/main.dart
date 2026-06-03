@@ -12,7 +12,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    print("Firebase initialization error: $e");
+    debugPrint("Firebase initialization error: $e");
     // NOTE: For the app to work fully, you must configure Firebase for your project.
     // 1. Go to Firebase Console
     // 2. Add Android app with your package name

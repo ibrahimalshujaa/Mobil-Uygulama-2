@@ -19,13 +19,13 @@ class BarberCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.secondary,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundColor: AppColors.primary.withOpacity(0.2),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.2),
               child: Icon(Icons.person, color: AppColors.primary, size: 30),
             ),
             const SizedBox(width: 16),

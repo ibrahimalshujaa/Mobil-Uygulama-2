@@ -7,7 +7,6 @@ import '../services/user_service.dart';
 
 import 'login_screen.dart';
 
-import 'shop_info_screen.dart';
 import 'gallery_screen.dart';
 import 'edit_profile_screen.dart';
 import 'my_appointments_screen.dart';
@@ -164,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: AppColors.primary, size: 20),
@@ -187,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildProfileButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onPressed, bool isDestructive = false}) {
     final color = isDestructive ? AppColors.error : AppColors.primary;
-    final bgColor = isDestructive ? AppColors.error.withOpacity(0.1) : AppColors.secondary;
+    final bgColor = isDestructive ? AppColors.error.withValues(alpha: 0.1) : AppColors.secondary;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -199,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: const EdgeInsets.symmetric(vertical: 18),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: isDestructive ? AppColors.error.withOpacity(0.5) : AppColors.primary),
+            side: BorderSide(color: isDestructive ? AppColors.error.withValues(alpha: 0.5) : AppColors.primary),
           ),
           elevation: 0,
         ),

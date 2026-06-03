@@ -6,7 +6,6 @@ import '../models/service_model.dart';
 import '../models/appointment_model.dart';
 import '../services/auth_service.dart';
 import '../services/appointment_service.dart';
-import '../services/notification_service.dart';
 import 'main_screen.dart';
 
 class ConfirmationScreen extends StatefulWidget {
@@ -22,7 +21,7 @@ class ConfirmationScreen extends StatefulWidget {
   });
 
   @override
-  _ConfirmationScreenState createState() => _ConfirmationScreenState();
+  State<ConfirmationScreen> createState() => _ConfirmationScreenState();
 }
 
 class _ConfirmationScreenState extends State<ConfirmationScreen> {
@@ -37,6 +36,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
 
       if (user == null) {
         debugPrint('--- Booking Error: User is null ---');
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Oturum bulunamadı. Lütfen tekrar giriş yapın.'),

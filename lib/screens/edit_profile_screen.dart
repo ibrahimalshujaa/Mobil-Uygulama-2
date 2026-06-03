@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
@@ -11,7 +10,7 @@ import '../services/auth_service.dart';
 class EditProfileScreen extends StatefulWidget {
   final UserModel user;
 
-  const EditProfileScreen({Key? key, required this.user}) : super(key: key);
+  const EditProfileScreen({super.key, required this.user});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -50,10 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      bool emailChanged = false;
-      
       if (user != null && user.email != newEmail) {
-        emailChanged = true;
         debugPrint('Old auth email: ${user.email}');
         debugPrint('New email: $newEmail');
         

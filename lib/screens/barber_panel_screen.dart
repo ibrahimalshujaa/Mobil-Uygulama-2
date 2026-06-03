@@ -19,13 +19,7 @@ class BarberPanelScreen extends StatefulWidget {
 class _BarberPanelScreenState extends State<BarberPanelScreen> {
   String _selectedFilter = 'Tümü';
 
-  String _formatTimeAgo(DateTime date) {
-    final diff = DateTime.now().difference(date);
-    if (diff.inDays > 0) return '${diff.inDays} gün önce';
-    if (diff.inHours > 0) return '${diff.inHours} saat önce';
-    if (diff.inMinutes > 0) return '${diff.inMinutes} dk önce';
-    return 'Az önce';
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -582,9 +576,9 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: statusColor.withOpacity(0.5)),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
                   appointment.status,
@@ -642,10 +636,7 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                // ignore: unnecessary_null_comparison
-                appointment.createdAt != null
-                    ? 'Talep Zamanı: ${appointment.createdAt.day.toString().padLeft(2, '0')}.${appointment.createdAt.month.toString().padLeft(2, '0')}.${appointment.createdAt.year} ${appointment.createdAt.hour.toString().padLeft(2, '0')}:${appointment.createdAt.minute.toString().padLeft(2, '0')}'
-                    : 'Talep zamanı bilinmiyor',
+                'Talep Zamanı: ${appointment.createdAt.day.toString().padLeft(2, '0')}.${appointment.createdAt.month.toString().padLeft(2, '0')}.${appointment.createdAt.year} ${appointment.createdAt.hour.toString().padLeft(2, '0')}:${appointment.createdAt.minute.toString().padLeft(2, '0')}',
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textMuted,
                 ),

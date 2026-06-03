@@ -178,7 +178,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                 decoration: BoxDecoration(
                   color: service.isActive
                       ? AppColors.secondary
-                      : AppColors.secondary.withOpacity(0.5),
+                      : AppColors.secondary.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.secondaryLight),
                 ),

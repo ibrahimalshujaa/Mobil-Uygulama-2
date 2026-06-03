@@ -50,7 +50,7 @@ class ShopInfoScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                   ),
                   child: const Icon(Icons.store, size: 80, color: AppColors.primary),
                 ),

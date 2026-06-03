@@ -64,7 +64,7 @@ class AppointmentService {
 
       return 'success';
     } catch (e) {
-      print('Error creating appointment: $e');
+      debugPrint('Error creating appointment: $e');
       return 'error';
     }
   }
@@ -176,7 +176,7 @@ class AppointmentService {
         }
       }
     } catch (e) {
-      print('Error updating appointment status: $e');
+      debugPrint('Error updating appointment status: $e');
     }
   }
 

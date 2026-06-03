@@ -259,12 +259,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     Color statusColor;
     if (status == 'Bekliyor') {
       statusColor = const Color.fromARGB(255, 171, 139, 34);
-    } else if (status == 'Onaylandı')
+    } else if (status == 'Onaylandı') {
       statusColor = Colors.blue;
-    else if (status == 'Tamamlandı')
+    } else if (status == 'Tamamlandı') {
       statusColor = Colors.green;
-    else
+    } else {
       statusColor = Colors.red; // İptal Edildi
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -324,7 +325,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           decoration: BoxDecoration(
             color: AppColors.secondary,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.success.withOpacity(0.5)),
+            border: Border.all(color: AppColors.success.withValues(alpha: 0.5)),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,

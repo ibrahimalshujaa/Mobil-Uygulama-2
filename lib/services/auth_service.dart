@@ -50,7 +50,7 @@ class AuthService {
         return _currentUser;
       }
     } catch (e) {
-      print('Register Error: \$e');
+      debugPrint('Register Error: $e');
       return null;
     }
     return null;
@@ -75,13 +75,13 @@ class AuthService {
         return _currentUser;
       }
     } on FirebaseAuthException catch (e) {
-      print('FirebaseAuthException: \${e.code}');
+      debugPrint('FirebaseAuthException: ${e.code}');
       throw Exception('AUTH_FAILED');
     } catch (e) {
       if (e.toString().contains('USER_NOT_FOUND')) {
         rethrow;
       }
-      print('Login Error: \$e');
+      debugPrint('Login Error: $e');
       throw Exception('AUTH_FAILED');
     }
     return null;
@@ -113,7 +113,7 @@ class AuthService {
         return UserModel.fromMap(doc.data() as Map<String, dynamic>);
       }
     } catch (e) {
-      print('Error getting user data: \$e');
+      debugPrint('Error getting user data: $e');
     }
     return null;
   }

@@ -27,7 +27,7 @@ class UserService {
       authService.updateCurrentUser(updatedUser);
       _userController.add(updatedUser);
     } catch (e) {
-      print('Error updating user profile: \$e');
+      debugPrint('Error updating user profile: $e');
     }
   }
 }

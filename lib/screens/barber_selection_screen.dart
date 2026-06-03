@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../models/service_model.dart';
-import '../models/barber_model.dart';
 import '../services/mock_data_service.dart';
 import '../widgets/barber_card.dart';
-import 'booking_screen.dart';
 import 'barber_detail_screen.dart';
 
 class BarberSelectionScreen extends StatelessWidget {
