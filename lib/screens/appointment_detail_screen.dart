@@ -10,10 +10,11 @@ import '../services/notification_service.dart';
 class AppointmentDetailScreen extends StatefulWidget {
   final AppointmentModel appointment;
 
-  const AppointmentDetailScreen({Key? key, required this.appointment}) : super(key: key);
+  const AppointmentDetailScreen({super.key, required this.appointment});
 
   @override
-  State<AppointmentDetailScreen> createState() => _AppointmentDetailScreenState();
+  State<AppointmentDetailScreen> createState() =>
+      _AppointmentDetailScreenState();
 }
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
@@ -37,15 +38,18 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
 
   Future<void> _cancelAppointment() async {
     setState(() => _isLoading = true);
-    await appointmentService.updateAppointmentStatus(_appointment.id, 'İptal Edildi');
+    await appointmentService.updateAppointmentStatus(
+      _appointment.id,
+      'İptal Edildi',
+    );
     setState(() {
       _appointment = _appointment.copyWith(status: 'İptal Edildi');
       _isLoading = false;
     });
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Randevu iptal edildi.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Randevu iptal edildi.')));
     }
   }
 
@@ -61,7 +65,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         builder: (context, setDialogState) {
           return AlertDialog(
             backgroundColor: AppColors.secondary,
-            title: const Text('Değerlendirme Yap', style: AppTextStyles.heading2),
+            title: const Text(
+              'Değerlendirme Yap',
+              style: AppTextStyles.heading2,
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -103,7 +110,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             actions: [
               TextButton(
                 onPressed: isSubmitting ? null : () => Navigator.pop(context),
-                child: const Text('İptal', style: TextStyle(color: AppColors.textMuted)),
+                child: const Text(
+                  'İptal',
+                  style: TextStyle(color: AppColors.textMuted),
+                ),
               ),
               ElevatedButton(
                 onPressed: isSubmitting
@@ -119,12 +129,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                             rating: selectedRating.toDouble(),
                             comment: commentController.text,
                           );
-                          
+
                           await notificationService.createNotification(
                             userId: 'barber',
                             roleTarget: 'barber',
                             title: 'Yeni Değerlendirme Geldi',
-                            message: '${_appointment.userName} size $selectedRating yıldız verdi.',
+                            message:
+                                '${_appointment.userName} size $selectedRating yıldız verdi.',
                             appointmentId: _appointment.id,
                             type: 'review',
                           );
@@ -148,10 +159,22 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           );
                         }
                       },
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
                 child: isSubmitting
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.background, strokeWidth: 2))
-                    : const Text('Kaydet', style: TextStyle(color: AppColors.background)),
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: AppColors.background,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Kaydet',
+                        style: TextStyle(color: AppColors.background),
+                      ),
               ),
             ],
           );
@@ -204,7 +227,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           _buildStatusRow('Durum', _appointment.status),
           const Divider(color: AppColors.secondaryLight, height: 32),
           _buildDetailRow(
-            'Oluşturulma', 
+            'Oluşturulma',
             DateFormat('dd.MM.yyyy HH:mm').format(_appointment.createdAt),
           ),
         ],
@@ -216,23 +239,40 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 16)),
-        Text(value, style: const TextStyle(color: AppColors.textLight, fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 16),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppColors.textLight,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildStatusRow(String label, String status) {
     Color statusColor;
-    if (status == 'Bekliyor') statusColor = Colors.orange;
-    else if (status == 'Onaylandı') statusColor = Colors.blue;
-    else if (status == 'Tamamlandı') statusColor = Colors.green;
-    else statusColor = Colors.red; // İptal Edildi
+    if (status == 'Bekliyor') {
+      statusColor = const Color.fromARGB(255, 171, 139, 34);
+    } else if (status == 'Onaylandı')
+      statusColor = Colors.blue;
+    else if (status == 'Tamamlandı')
+      statusColor = Colors.green;
+    else
+      statusColor = Colors.red; // İptal Edildi
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 16)),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 16),
+        ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
@@ -242,7 +282,11 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           ),
           child: Text(
             status,
-            style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 14),
+            style: TextStyle(
+              color: statusColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
           ),
         ),
       ],
@@ -250,7 +294,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   Widget _buildActionButtons() {
-    if (_appointment.status == 'Bekliyor' || _appointment.status == 'Onaylandı') {
+    if (_appointment.status == 'Bekliyor' ||
+        _appointment.status == 'Onaylandı') {
       return SizedBox(
         height: 55,
         child: ElevatedButton(
@@ -259,11 +304,16 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             backgroundColor: Colors.red.withValues(alpha: 0.1),
             foregroundColor: Colors.red,
             side: const BorderSide(color: Colors.red),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-          child: _isLoading 
+          child: _isLoading
               ? const CircularProgressIndicator(color: Colors.red)
-              : const Text('Randevuyu İptal Et', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              : const Text(
+                  'Randevuyu İptal Et',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
         ),
       );
     } else if (_appointment.status == 'Tamamlandı') {
@@ -281,7 +331,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             children: [
               Icon(Icons.check_circle, color: AppColors.success),
               SizedBox(width: 8),
-              Text('Değerlendirildi', style: TextStyle(color: AppColors.success, fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Değerlendirildi',
+                style: TextStyle(
+                  color: AppColors.success,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         );
@@ -293,9 +350,14 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.background,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Değerlendirme Yap', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Değerlendirme Yap',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
         );
       }

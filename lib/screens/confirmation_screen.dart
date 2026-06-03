@@ -182,7 +182,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   const Divider(color: AppColors.secondaryLight, height: 32),
                   _buildSummaryRow('Ücret', '${widget.selectedService.price} ₺'),
                   const Divider(color: AppColors.secondaryLight, height: 32),
-                  _buildSummaryRow('Durum', 'Bekliyor', valueColor: AppColors.warning),
+                  _buildSummaryRow('Durum', 'Bekliyor', valueColor: const Color.fromARGB(255, 171, 139, 34)),
                 ],
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
@@ -15,7 +16,13 @@ class UserService {
 
   Future<void> updateUserProfile(UserModel updatedUser) async {
     try {
-      await _firestore.collection('users').doc(updatedUser.uid).update(updatedUser.toMap());
+      final uid = updatedUser.uid;
+      debugPrint('UserService.updateUserProfile - UID: $uid');
+      if (uid.isEmpty) {
+        throw Exception('UID is empty in UserService');
+      }
+      debugPrint('UserService Document path being used: users/$uid');
+      await _firestore.collection('users').doc(uid).update(updatedUser.toMap());
       // Update local state
       authService.updateCurrentUser(updatedUser);
       _userController.add(updatedUser);

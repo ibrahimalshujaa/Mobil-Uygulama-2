@@ -11,11 +11,16 @@ class AppointmentCard extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Bekliyor': return AppColors.warning;
-      case 'Onaylandı': return AppColors.success;
-      case 'Tamamlandı': return AppColors.info;
-      case 'İptal Edildi': return AppColors.error;
-      default: return AppColors.warning;
+      case 'Bekliyor':
+        return const Color.fromARGB(255, 171, 139, 34);
+      case 'Onaylandı':
+        return AppColors.success;
+      case 'Tamamlandı':
+        return AppColors.info;
+      case 'İptal Edildi':
+        return AppColors.error;
+      default:
+        return AppColors.warning;
     }
   }
 
@@ -23,7 +28,9 @@ class AppointmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusColor = _getStatusColor(appointment.status);
     final dateObj = DateTime.tryParse(appointment.date);
-    final formattedDate = dateObj != null ? DateFormat('dd MMM yyyy').format(dateObj) : appointment.date;
+    final formattedDate = dateObj != null
+        ? DateFormat('dd MMM yyyy').format(dateObj)
+        : appointment.date;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -46,15 +53,31 @@ class AppointmentCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(formattedDate, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              Text(
+                formattedDate,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: statusColor.withOpacity(0.5)),
                 ),
-                child: Text(appointment.status, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text(
+                  appointment.status,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
@@ -67,16 +90,28 @@ class AppointmentCard extends StatelessWidget {
                   color: AppColors.background,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.content_cut, color: AppColors.textLight, size: 24),
+                child: const Icon(
+                  Icons.content_cut,
+                  color: AppColors.textLight,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(appointment.serviceName, style: AppTextStyles.heading3),
+                    Text(
+                      appointment.serviceName,
+                      style: AppTextStyles.heading3,
+                    ),
                     const SizedBox(height: 4),
-                    Text(appointment.barberName, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
+                    Text(
+                      appointment.barberName,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -85,7 +120,12 @@ class AppointmentCard extends StatelessWidget {
                 children: [
                   Text(appointment.time, style: AppTextStyles.heading3),
                   const SizedBox(height: 4),
-                  Text('${appointment.price.toInt()} ₺', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary)),
+                  Text(
+                    '${appointment.price.toInt()} ₺',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ],
               ),
             ],

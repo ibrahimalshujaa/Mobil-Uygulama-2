@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
@@ -94,8 +95,14 @@ class AuthService {
 
   void updateCurrentUser(UserModel user) {
     _currentUser = user;
+    final uid = user.uid;
+    debugPrint('AuthService.updateCurrentUser - UID: $uid');
+    if (uid.isEmpty) {
+      throw Exception('UID is empty in AuthService');
+    }
+    debugPrint('AuthService Document path being used: users/$uid');
     // Optionally update Firestore here
-    _firestore.collection('users').doc(user.uid).update(user.toMap());
+    _firestore.collection('users').doc(uid).update(user.toMap());
   }
 
   // Get User Data

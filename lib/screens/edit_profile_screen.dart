@@ -1,8 +1,12 @@
+
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../models/user_model.dart';
 import '../services/user_service.dart';
+import '../services/auth_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -36,28 +40,166 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
+    final newName = _nameController.text.trim();
+    final newEmail = _emailController.text.trim();
+    final newPhone = _phoneController.text.trim();
+
     setState(() {
       _isLoading = true;
     });
 
-    final updatedUser = widget.user.copyWith(
-      fullName: _nameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      bool emailChanged = false;
+      
+      if (user != null && user.email != newEmail) {
+        emailChanged = true;
+        debugPrint('Old auth email: ${user.email}');
+        debugPrint('New email: $newEmail');
+        
+        try {
+          await user.verifyBeforeUpdateEmail(newEmail);
+          await user.reload(); // Reload user model immediately
+          debugPrint('Firebase Auth verifyBeforeUpdateEmail called successfully');
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'requires-recent-login') {
+            debugPrint('Requires recent login: true');
+            final password = await _promptForPassword();
+            if (password == null || password.isEmpty) {
+              setState(() => _isLoading = false);
+              return;
+            }
+            
+            final cred = EmailAuthProvider.credential(
+              email: user.email!, 
+              password: password
+            );
+            await user.reauthenticateWithCredential(cred);
+            
+            await user.verifyBeforeUpdateEmail(newEmail);
+            await user.reload(); // Reload user model immediately
+            debugPrint('Firebase Auth verifyBeforeUpdateEmail called successfully after reauth');
+          } else {
+            rethrow;
+          }
+        }
+      }
+
+      final authUid = user?.uid ?? '';
+      final widgetUid = widget.user.uid;
+      final actualUid = widgetUid.isNotEmpty ? widgetUid : authUid;
+
+      debugPrint('--- KAYDET PRESSED ---');
+      debugPrint('FirebaseAuth UID: $authUid');
+      debugPrint('widget.user.uid: $widgetUid');
+      debugPrint('actualUid being used: $actualUid');
+      debugPrint('Document path being used: users/$actualUid');
+
+      if (actualUid.isEmpty) {
+        throw Exception('UID is empty');
+      }
+
+      final updatedUser = widget.user.copyWith(
+        uid: actualUid,
+        fullName: newName,
+        email: newEmail, // Force Firestore to update email immediately
+        phone: newPhone,
+      );
+
+      try {
+        await userService.updateUserProfile(updatedUser);
+        debugPrint('Firestore update success for path: users/$actualUid');
+      } catch (e) {
+        debugPrint('Firestore update failure for path: users/$actualUid, error: $e');
+        rethrow;
+      }
+
+      authService.updateCurrentUser(updatedUser);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profil başarıyla güncellendi.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        Navigator.pop(context, updatedUser);
+      }
+    } catch (e, stackTrace) {
+      debugPrint('================ UPDATE EMAIL ERROR ================');
+      debugPrint('Update profile error: $e');
+      if (e is FirebaseAuthException) {
+        debugPrint('Code: ${e.code}');
+        debugPrint('Message: ${e.message}');
+      }
+      debugPrint('StackTrace: $stackTrace');
+      debugPrint('====================================================');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 8),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<String?> _promptForPassword() async {
+    if (!mounted) return null;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Güvenlik nedeniyle e-posta değiştirmek için tekrar giriş yapmanız gerekiyor.'),
+        backgroundColor: AppColors.warning,
+      ),
     );
 
-    await userService.updateUserProfile(updatedUser);
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil başarıyla güncellendi.')),
-      );
-      Navigator.pop(context, updatedUser);
-    }
+    String? password;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        String input = '';
+        return AlertDialog(
+          backgroundColor: AppColors.secondary,
+          title: const Text('Şifrenizi Girin', style: AppTextStyles.heading3),
+          content: TextField(
+            obscureText: true,
+            style: const TextStyle(color: AppColors.textLight),
+            onChanged: (val) => input = val,
+            decoration: const InputDecoration(
+              hintText: 'Mevcut Şifreniz',
+              hintStyle: TextStyle(color: AppColors.textMuted),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İptal', style: TextStyle(color: AppColors.textMuted)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+              onPressed: () {
+                password = input;
+                Navigator.pop(context);
+              },
+              child: const Text('Onayla', style: TextStyle(color: AppColors.background)),
+            ),
+          ],
+        );
+      }
+    );
+    return password;
   }
 
   @override
@@ -151,3 +293,5 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
+
+

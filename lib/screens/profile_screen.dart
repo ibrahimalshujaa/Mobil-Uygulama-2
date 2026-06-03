@@ -4,17 +4,15 @@ import '../constants/app_text_styles.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
-import '../services/appointment_service.dart';
-import '../models/appointment_model.dart';
+
 import 'login_screen.dart';
-import 'barber_panel_screen.dart';
-import 'notifications_screen.dart';
+
 import 'shop_info_screen.dart';
 import 'gallery_screen.dart';
 import 'edit_profile_screen.dart';
 import 'my_appointments_screen.dart';
 import 'salon_settings_screen.dart';
-import 'service_management_screen.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -86,80 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   children: [
-                    StreamBuilder<List<AppointmentModel>>(
-                      stream: user?.role == 'barber' ? appointmentService.getAllAppointments() : appointmentService.getUserAppointments(user?.uid ?? ''),
-                      builder: (context, appSnapshot) {
-                        final apps = appSnapshot.data ?? [];
-                        int totalCount = 0;
-                        String lastAppDate = 'Yok';
 
-                        if (user?.role == 'customer') {
-                          final customerAppts = apps.where((a) => a.userId == user?.uid).toList();
-                          totalCount = customerAppts.length;
-                          if (customerAppts.isNotEmpty) {
-                            var sortedApps = List<AppointmentModel>.from(customerAppts);
-                            sortedApps.sort((a, b) => b.date.compareTo(a.date));
-                            lastAppDate = sortedApps.first.date;
-                          }
-                        } else {
-                          totalCount = apps.length;
-                          if (apps.isNotEmpty) {
-                            var sortedApps = List<AppointmentModel>.from(apps);
-                            sortedApps.sort((a, b) => b.date.compareTo(a.date));
-                            lastAppDate = sortedApps.first.date;
-                          }
-                        }
-                        
-                        debugPrint('--- Profile Stats Loaded ---');
-                        debugPrint('User ID: ${user?.uid}');
-                        debugPrint('Role: ${user?.role}');
-                        debugPrint('Total Appointments: $totalCount');
-                        debugPrint('latest appointment date: $lastAppDate');
-                        
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: AppColors.primary.withOpacity(0.5)),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text('Toplam Randevu', style: AppTextStyles.bodySmall),
-                                    const SizedBox(height: 8),
-                                    Text('$totalCount', style: AppTextStyles.heading2.copyWith(color: AppColors.primary)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: AppColors.primary.withOpacity(0.5)),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const Text('Son Randevu', style: AppTextStyles.bodySmall),
-                                    const SizedBox(height: 8),
-                                    Text(lastAppDate, style: AppTextStyles.heading3.copyWith(color: AppColors.primary), textAlign: TextAlign.center),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-                    ),
-                    const SizedBox(height: 24),
                     _buildProfileItem(Icons.email, 'E-posta', (user?.email != null && user!.email.isNotEmpty) ? user.email : 'Belirtilmemiş'),
                     const SizedBox(height: 16),
                     _buildProfileItem(Icons.phone, 'Telefon Numarası', (user?.phone != null && user!.phone.isNotEmpty) ? user.phone : 'Belirtilmemiş'),
@@ -173,15 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => const SalonSettingsScreen()));
                         },
                       ),
-                      const SizedBox(height: 12),
-                      _buildProfileButton(
-                        context,
-                        icon: Icons.cut,
-                        label: 'Hizmet Yönetimi',
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ServiceManagementScreen()));
-                        },
-                      ),
+
                       const SizedBox(height: 12),
                       _buildProfileButton(
                         context,
@@ -214,26 +131,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }
                       },
                     ),
-                    const SizedBox(height: 12),
-                    _buildProfileButton(
-                      context,
-                      icon: Icons.notifications,
-                      label: 'Bildirimler',
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationsScreen()));
-                      },
-                    ),
-                    if (user?.role == 'barber') ...[
-                      const SizedBox(height: 12),
-                      _buildProfileButton(
-                        context,
-                        icon: Icons.admin_panel_settings,
-                        label: 'Berber Paneline Git',
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => BarberPanelScreen()));
-                        },
-                      ),
-                    ],
+
+
                     const SizedBox(height: 12),
                     _buildProfileButton(
                       context,

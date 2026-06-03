@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../services/salon_service.dart';
-import '../models/service_model.dart';
 import '../services/auth_service.dart';
 
 class ShopInfoScreen extends StatelessWidget {
@@ -78,24 +77,6 @@ class ShopInfoScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildInfoRow(Icons.chat, 'WhatsApp', settings['whatsapp']),
                 ],
-                const SizedBox(height: 32),
-                const Text('Hizmetlerimiz', style: AppTextStyles.heading2),
-                const SizedBox(height: 16),
-                StreamBuilder<List<ServiceModel>>(
-                  stream: salonService.getServices(onlyActive: true),
-                  builder: (context, serviceSnapshot) {
-                    if (serviceSnapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                    }
-                    final services = serviceSnapshot.data ?? [];
-                    if (services.isEmpty) {
-                      return const Text('Henüz hizmet eklenmedi.', style: AppTextStyles.bodyLarge);
-                    }
-                    return Column(
-                      children: services.map((s) => _buildServiceItem(s.name, '${s.duration} dk', '${s.price} ₺')).toList(),
-                    );
-                  },
-                ),
               ],
             ),
           );
@@ -127,32 +108,6 @@ class ShopInfoScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildServiceItem(String name, String time, String price) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.secondaryLight),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text(time, style: AppTextStyles.bodySmall),
-            ],
-          ),
-          Text(price, style: AppTextStyles.heading3.copyWith(color: AppColors.primary)),
-        ],
-      ),
     );
   }
 }

@@ -6,7 +6,6 @@ import '../models/notification_model.dart';
 import '../services/appointment_service.dart';
 import '../services/review_service.dart';
 import '../services/notification_service.dart';
-import 'salon_settings_screen.dart';
 import 'reviews_screen.dart';
 import 'barber_notifications_screen.dart';
 
@@ -43,38 +42,64 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
         stream: appointmentService.getAllAppointments(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Bir hata oluştu: ${snapshot.error}', style: const TextStyle(color: AppColors.error)));
+            return Center(
+              child: Text(
+                'Bir hata oluştu: ${snapshot.error}',
+                style: const TextStyle(color: AppColors.error),
+              ),
+            );
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
           final appointments = snapshot.data ?? [];
           final allAppointments = appointments;
-          final activeAppointments = appointments.where((a) => !a.isArchived).toList();
-          
+          final activeAppointments = appointments
+              .where((a) => !a.isArchived)
+              .toList();
+
           final today = DateTime.now();
-          final todayStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-          
-          final pendingAppointments = activeAppointments.where((a) => a.status == 'Bekliyor').length;
-          final uniqueCustomers = allAppointments.map((a) => a.userId).toSet().length;
-          
-          final completedAppts = allAppointments.where((a) => a.status == 'Tamamlandı').toList();
-          final totalRevenue = completedAppts.fold(0.0, (sum, a) => sum + a.price);
-          
-          final todayRevenue = completedAppts.where((a) {
-            try {
-              if (a.date == todayStr) return true;
-              final normalized = a.date.replaceAll('.', '-');
-              final d = DateTime.parse(normalized);
-              return d.year == today.year && d.month == today.month && d.day == today.day;
-            } catch (e) {
-              return false;
-            }
-          }).fold(0.0, (sum, a) => sum + a.price);
-          
+          final todayStr =
+              "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+          final pendingAppointments = activeAppointments
+              .where((a) => a.status == 'Bekliyor')
+              .length;
+          final uniqueCustomers = allAppointments
+              .map((a) => a.userId)
+              .toSet()
+              .length;
+
+          final completedAppts = allAppointments
+              .where((a) => a.status == 'Tamamlandı')
+              .toList();
+          final totalRevenue = completedAppts.fold(
+            0.0,
+            (sum, a) => sum + a.price,
+          );
+
+          final todayRevenue = completedAppts
+              .where((a) {
+                try {
+                  if (a.date == todayStr) return true;
+                  final normalized = a.date.replaceAll('.', '-');
+                  final d = DateTime.parse(normalized);
+                  return d.year == today.year &&
+                      d.month == today.month &&
+                      d.day == today.day;
+                } catch (e) {
+                  return false;
+                }
+              })
+              .fold(0.0, (sum, a) => sum + a.price);
+
           List<AppointmentModel> filteredAppointments = activeAppointments;
           if (_selectedFilter != 'Tümü') {
-            filteredAppointments = activeAppointments.where((a) => a.status == _selectedFilter).toList();
+            filteredAppointments = activeAppointments
+                .where((a) => a.status == _selectedFilter)
+                .toList();
           }
 
           debugPrint('stats appointments count: ${allAppointments.length}');
@@ -92,21 +117,52 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                     children: [
                       _buildNotificationsSection(),
                       const SizedBox(height: 32),
-                      const Text('İstatistikler', style: AppTextStyles.heading2),
+                      const Text(
+                        'İstatistikler',
+                        style: AppTextStyles.heading2,
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Expanded(child: _buildStatCard('Toplam Müşteri', '$uniqueCustomers', Icons.people, color: AppColors.info)),
+                          Expanded(
+                            child: _buildStatCard(
+                              'Toplam Müşteri',
+                              '$uniqueCustomers',
+                              Icons.people,
+                              color: AppColors.info,
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          Expanded(child: _buildStatCard('Bekleyen Randevu', '$pendingAppointments', Icons.hourglass_empty, color: AppColors.warning)),
+                          Expanded(
+                            child: _buildStatCard(
+                              'Bekleyen Randevu',
+                              '$pendingAppointments',
+                              Icons.hourglass_empty,
+                              color: AppColors.warning,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Expanded(child: _buildStatCard('Bugünkü Gelir', '${todayRevenue.toStringAsFixed(0)} ₺', Icons.account_balance_wallet, color: AppColors.success)),
+                          Expanded(
+                            child: _buildStatCard(
+                              'Bugünkü Gelir',
+                              '${todayRevenue.toStringAsFixed(0)} ₺',
+                              Icons.account_balance_wallet,
+                              color: AppColors.success,
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          Expanded(child: _buildStatCard('Toplam Gelir', '${totalRevenue.toStringAsFixed(0)} ₺', Icons.savings, color: AppColors.primary)),
+                          Expanded(
+                            child: _buildStatCard(
+                              'Toplam Gelir',
+                              '${totalRevenue.toStringAsFixed(0)} ₺',
+                              Icons.savings,
+                              color: AppColors.primary,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 32),
@@ -115,26 +171,46 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: ['Tümü', 'Bekliyor', 'Onaylandı', 'Tamamlandı', 'İptal Edildi']
-                              .map((filter) => Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: ChoiceChip(
-                                      label: Text(filter),
-                                      selected: _selectedFilter == filter,
-                                      selectedColor: AppColors.primary,
-                                      backgroundColor: AppColors.secondary,
-                                      labelStyle: TextStyle(
-                                        color: _selectedFilter == filter ? AppColors.background : AppColors.textLight,
-                                        fontWeight: FontWeight.bold,
+                          children:
+                              [
+                                    'Tümü',
+                                    'Bekliyor',
+                                    'Onaylandı',
+                                    'Tamamlandı',
+                                    'İptal Edildi',
+                                  ]
+                                  .map(
+                                    (filter) => Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
                                       ),
-                                      onSelected: (selected) {
-                                        if (selected) {
-                                          setState(() => _selectedFilter = filter);
-                                        }
-                                      },
+                                      child: ChoiceChip(
+                                        label: Text(filter),
+                                        selected: _selectedFilter == filter,
+                                        selectedColor: const Color.fromARGB(
+                                          255,
+                                          171,
+                                          139,
+                                          34,
+                                        ),
+                                        backgroundColor: AppColors.secondary,
+                                        labelStyle: TextStyle(
+                                          color: _selectedFilter == filter
+                                              ? AppColors.background
+                                              : AppColors.textLight,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        onSelected: (selected) {
+                                          if (selected) {
+                                            setState(
+                                              () => _selectedFilter = filter,
+                                            );
+                                          }
+                                        },
+                                      ),
                                     ),
-                                  ))
-                              .toList(),
+                                  )
+                                  .toList(),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -147,19 +223,19 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                   child: Center(
                     child: Padding(
                       padding: EdgeInsets.all(32.0),
-                      child: Text('Bu filtreye uygun randevu yok.', style: AppTextStyles.bodyLarge),
+                      child: Text(
+                        'Bu filtreye uygun randevu yok',
+                        style: AppTextStyles.bodyLarge,
+                      ),
                     ),
                   ),
                 )
               else
                 SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final appointment = filteredAppointments[index];
-                      return _buildPanelAppointmentCard(appointment, context);
-                    },
-                    childCount: filteredAppointments.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final appointment = filteredAppointments[index];
+                    return _buildPanelAppointmentCard(appointment, context);
+                  }, childCount: filteredAppointments.length),
                 ),
               SliverToBoxAdapter(
                 child: Padding(
@@ -168,7 +244,10 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
-                      const Text('Müşteri Değerlendirmeleri', style: AppTextStyles.heading2),
+                      const Text(
+                        'Müşteri Değerlendirmeleri',
+                        style: AppTextStyles.heading2,
+                      ),
                       const SizedBox(height: 16),
                       _buildReviewsSection(),
                       const SizedBox(height: 32),
@@ -188,11 +267,13 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
       stream: notificationService.getUserNotifications('barber', 'barber'),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
         }
         final notifications = snapshot.data ?? [];
         final unreadCount = notifications.where((n) => !n.isRead).length;
-        
+
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -209,12 +290,22 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                   const Text('Yeni Bildirimler', style: AppTextStyles.heading2),
                   if (unreadCount > 0)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text('$unreadCount Yeni', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        '$unreadCount Yeni',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -222,9 +313,20 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
               if (notifications.isNotEmpty) ...[
                 Row(
                   children: [
-                    const Icon(Icons.notifications, color: AppColors.primary, size: 20),
+                    const Icon(
+                      Icons.notifications,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(notifications.first.title, style: AppTextStyles.bodyMedium, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                      child: Text(
+                        notifications.first.title,
+                        style: AppTextStyles.bodyMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -233,12 +335,19 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const BarberNotificationsScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BarberNotificationsScreen(),
+                      ),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: const BorderSide(color: AppColors.primary),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text('Bildirimleri Gör'),
                 ),
@@ -255,10 +364,12 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
       stream: reviewService.getReviews(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          );
         }
         final reviews = snapshot.data ?? [];
-        
+
         double avgRating = 0.0;
         if (reviews.isNotEmpty) {
           double total = 0.0;
@@ -285,19 +396,35 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Toplam Değerlendirme', style: AppTextStyles.bodySmall),
+                      const Text(
+                        'Toplam Değerlendirme',
+                        style: AppTextStyles.bodySmall,
+                      ),
                       const SizedBox(height: 4),
-                      Text('${reviews.length}', style: AppTextStyles.heading2.copyWith(color: AppColors.primary)),
+                      Text(
+                        '${reviews.length}',
+                        style: AppTextStyles.heading2.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text('Ortalama Puan', style: AppTextStyles.bodySmall),
+                      const Text(
+                        'Ortalama Puan',
+                        style: AppTextStyles.bodySmall,
+                      ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Text(avgRating.toStringAsFixed(1), style: AppTextStyles.heading2.copyWith(color: AppColors.primary)),
+                          Text(
+                            avgRating.toStringAsFixed(1),
+                            style: AppTextStyles.heading2.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
                           const SizedBox(width: 4),
                           const Icon(Icons.star, color: Colors.amber, size: 24),
                         ],
@@ -311,12 +438,19 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ReviewsScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ReviewsScreen(),
+                      ),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: const BorderSide(color: AppColors.primary),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text('Tüm Değerlendirmeleri Gör'),
                 ),
@@ -328,7 +462,12 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, {Color color = AppColors.textLight}) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon, {
+    Color color = AppColors.textLight,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -349,14 +488,26 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
     );
   }
 
-  Widget _buildPanelAppointmentCard(AppointmentModel appointment, BuildContext context) {
+  Widget _buildPanelAppointmentCard(
+    AppointmentModel appointment,
+    BuildContext context,
+  ) {
     Color statusColor;
     switch (appointment.status) {
-      case 'Bekliyor': statusColor = Colors.orange; break;
-      case 'Onaylandı': statusColor = Colors.blue; break;
-      case 'Tamamlandı': statusColor = Colors.green; break;
-      case 'İptal Edildi': statusColor = Colors.red; break;
-      default: statusColor = AppColors.textMuted;
+      case 'Bekliyor':
+        statusColor = const Color.fromARGB(255, 171, 139, 34);
+        break;
+      case 'Onaylandı':
+        statusColor = Colors.blue;
+        break;
+      case 'Tamamlandı':
+        statusColor = Colors.green;
+        break;
+      case 'İptal Edildi':
+        statusColor = Colors.red;
+        break;
+      default:
+        statusColor = AppColors.textMuted;
     }
 
     return Container(
@@ -376,9 +527,20 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
               Expanded(
                 child: Row(
                   children: [
-                    const Icon(Icons.person, color: AppColors.primary, size: 20),
+                    const Icon(
+                      Icons.person,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(appointment.userName, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold))),
+                    Expanded(
+                      child: Text(
+                        appointment.userName,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -389,7 +551,14 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: statusColor.withOpacity(0.5)),
                 ),
-                child: Text(appointment.status, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text(
+                  appointment.status,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
@@ -407,12 +576,25 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: AppColors.textMuted, size: 16),
+                  const Icon(
+                    Icons.calendar_today,
+                    color: AppColors.textMuted,
+                    size: 16,
+                  ),
                   const SizedBox(width: 8),
-                  Text('${appointment.date}  ${appointment.time}', style: AppTextStyles.bodySmall),
+                  Text(
+                    '${appointment.date}  ${appointment.time}',
+                    style: AppTextStyles.bodySmall,
+                  ),
                 ],
               ),
-              Text('${appointment.price} ₺', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.success, fontWeight: FontWeight.bold)),
+              Text(
+                '${appointment.price} ₺',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.success,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           if (appointment.status == 'Bekliyor') ...[
@@ -421,17 +603,34 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => appointmentService.updateAppointmentStatus(appointment.id, 'Onaylandı'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                    child: const Text('Onayla', style: TextStyle(color: Colors.white, fontSize: 12)),
+                    onPressed: () => appointmentService.updateAppointmentStatus(
+                      appointment.id,
+                      'Onaylandı',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: const Text(
+                      'Onayla',
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => appointmentService.updateAppointmentStatus(appointment.id, 'İptal Edildi'),
-                    style: OutlinedButton.styleFrom(foregroundColor: Colors.red, side: const BorderSide(color: Colors.red)),
-                    child: const Text('İptal Et', style: TextStyle(fontSize: 12)),
+                    onPressed: () => appointmentService.updateAppointmentStatus(
+                      appointment.id,
+                      'İptal Edildi',
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                    ),
+                    child: const Text(
+                      'İptal Et',
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
                 ),
               ],
@@ -441,12 +640,19 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => appointmentService.updateAppointmentStatus(appointment.id, 'Tamamlandı'),
+                onPressed: () => appointmentService.updateAppointmentStatus(
+                  appointment.id,
+                  'Tamamlandı',
+                ),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: const Text('Tamamlandı', style: TextStyle(color: Colors.white, fontSize: 12)),
+                child: const Text(
+                  'Tamamlandı',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
               ),
             ),
-          ] else if (appointment.status == 'Tamamlandı' || appointment.status == 'İptal Edildi') ...[
+          ] else if (appointment.status == 'Tamamlandı' ||
+              appointment.status == 'İptal Edildi') ...[
             const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerRight,
@@ -457,12 +663,20 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                     builder: (context) => AlertDialog(
                       backgroundColor: AppColors.secondary,
                       title: const Text('Sil', style: AppTextStyles.heading2),
-                      content: const Text('Bu randevuyu silmek istediğinize emin misiniz?'),
+                      content: const Text(
+                        'Bu randevuyu silmek istediğinize emin misiniz?',
+                      ),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('İptal')),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('İptal'),
+                        ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Sil', style: TextStyle(color: AppColors.error)),
+                          child: const Text(
+                            'Sil',
+                            style: TextStyle(color: AppColors.error),
+                          ),
                         ),
                       ],
                     ),
@@ -471,11 +685,18 @@ class _BarberPanelScreenState extends State<BarberPanelScreen> {
                     await appointmentService.deleteAppointment(appointment.id);
                   }
                 },
-                icon: const Icon(Icons.delete, color: AppColors.error, size: 20),
-                label: const Text('Sil', style: TextStyle(color: AppColors.error)),
+                icon: const Icon(
+                  Icons.delete,
+                  color: AppColors.error,
+                  size: 20,
+                ),
+                label: const Text(
+                  'Sil',
+                  style: TextStyle(color: AppColors.error),
+                ),
               ),
             ),
-          ]
+          ],
         ],
       ),
     );
