@@ -71,7 +71,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.content_cut, size: 80, color: AppColors.primary),
+            Image.asset(
+              'assets/images/logo.png',
+              width: 120, // Match typical Android 12 splash icon size
+              height: 120,
+            ),
             const SizedBox(height: 20),
             Text('StyleHub', style: AppTextStyles.heading1.copyWith(fontSize: 40)),
             const SizedBox(height: 10),
